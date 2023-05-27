@@ -1,13 +1,11 @@
 import Link from 'next/link'
+import Layout from '../components/layout';
 
 const Room = () => {
     return ( 
-    <div>
-        <h1 style={{fontSize: "170px"}}>Did Ynee Ynee use girl's phone today?</h1>
-        <Link style={{fontSize: "100px"}} href="/profile">(a)Yes</Link>
-        <option style={{fontSize: "100px"}}>(b)Yes</option>
-        <option style={{fontSize: "100px"}}>(c)All of the above</option>
-    </div> );
+    <Layout>
+        <h1>Room</h1>
+    </Layout> );
 }
  
 export default Room;
