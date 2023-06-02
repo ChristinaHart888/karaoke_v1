@@ -14,19 +14,8 @@ const Room = () => {
     const playVideo = (event) => {
         console.log("Playing Video")
         event.target.playVideo()
-        console.log("Iframe")
         const iframe = event.target.getIframe();
         iframe.style.width = '100%';
-    }
-
-    const onEnd = (event) => {
-        playlist.shift()
-        if(playlist[0]){
-            event.target.playVideo()
-        } else {
-            setIsEnded(true)
-        }
-        
     }
 
     const playPause = () => {
@@ -52,6 +41,15 @@ const Room = () => {
     const onPause = () => {
         console.log("Pause")
         setIsPlaying(false)
+    }
+
+    const onEnd = async (event) => {
+        setPlaylist(playlist.slice(1))
+        if(playlist[0]){
+            event.target.loadVideoById(playlist[0])
+        } else {
+            setIsEnded(true)
+        }
     }
 
     const addVideo = () => {
@@ -87,16 +85,22 @@ const Room = () => {
                 </div>
             </div>
         </div>}
+        <div className="search">
+
+        </div>
         
-         <h3>Up Next</h3>
+         <h3>Now Playing</h3>
          <div className='queue' style={{display: 'grid'}}>
             
             {
-                playlist.map((video) => {
-                    console.log(video)
-                    return(<QueueItem
-                        videoID={video}
-                    />)
+                playlist.map((video, index) => {
+                    return(
+                        <>
+                            <QueueItem videoID={video}/>
+                            {index == 0 && <h4>Up Next</h4>}
+                        </>
+                        
+                    )
                 }) 
             }
          </div>

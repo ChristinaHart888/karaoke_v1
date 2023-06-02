@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import React from "react";
 
 const QueueItem = ({videoID}) => {
     const [title, setTitle] = useState();
@@ -16,9 +17,9 @@ const QueueItem = ({videoID}) => {
     })
 
     const getVideoInfo = async () => {
-        //const apiKey = process.env.GOOGLE_API_KEY;
+        const apiKeyEnv = process.env.REACT_APP_API_KEY;
+        console.log("env", apiKeyEnv)
         const apiKey = "AIzaSyAkQcjBu24LNd_wRR_o1CExlF2Jf02V4Oo"
-        console.log(apiKey)
         const response = await fetch(`
             https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=${apiKey}`)
         if(response.ok) {
