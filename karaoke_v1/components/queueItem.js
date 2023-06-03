@@ -19,7 +19,7 @@ const QueueItem = ({videoID}) => {
     const getVideoInfo = async () => {
         const apiKeyEnv = process.env.REACT_APP_API_KEY;
         console.log("env", apiKeyEnv)
-        const apiKey = "AIzaSyAkQcjBu24LNd_wRR_o1CExlF2Jf02V4Oo"
+        const apiKey = "AIzaSyAvz-aJqhbrqZ0mdbYIwI4emIrpvzjYXgo"
         const response = await fetch(`
             https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=${apiKey}`)
         if(response.ok) {
