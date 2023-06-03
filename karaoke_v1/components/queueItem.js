@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import React from "react";
 
-const QueueItem = ({videoID}) => {
+const QueueItem = ({videoID, key}) => {
     const [title, setTitle] = useState();
     const [thumbnail, setThumbnail] = useState();
 
@@ -19,7 +19,10 @@ const QueueItem = ({videoID}) => {
     const getVideoInfo = async () => {
         const apiKeyEnv = process.env.REACT_APP_API_KEY;
         console.log("env", apiKeyEnv)
-        const apiKey = "AIzaSyAvz-aJqhbrqZ0mdbYIwI4emIrpvzjYXgo"
+        let apiKey = "AIzaSyAFQpD74U03NWIFoGd6i9nLLgX9-LUgyF4"
+        if(key){
+            apiKey = key
+        }
         const response = await fetch(`
             https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=${apiKey}`)
         if(response.ok) {
@@ -37,10 +40,10 @@ const QueueItem = ({videoID}) => {
     }
 
     return ( 
-    <>
-    <img src={thumbnail}></img>
-    {title}
-    </> );
+    <div style={{display: 'flex'}}>
+        <img src={thumbnail}></img>
+        <p style={{marginTop: 0, marginLeft: "0.5em"}}>{title}</p>
+    </div> );
 }
  
 export default QueueItem;

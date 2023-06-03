@@ -8,12 +8,13 @@ const Room = () => {
     const [playlist, setPlaylist] = useState([]);
     const [roomName, setRoomName] = useState('Room');
     const [isPlaying, setIsPlaying] = useState(false);
+    const [searchBar, setSearchBar] = useState();
     const [query, setQuery] = useState('');
     const [suggestedVideos, setSuggestedVideos] = useState([]);
     const [isEnded, setIsEnded] = useState();
+    const [localStorageAPIKey, setLocalStorageAPIKey] = useState();
     const playerRef = useRef(null);
     const cachedResults = useMemo(() => new Map(), [])
-    const videoIDs = ['RkjSfZ30GM4', 'JbknEqLpgtA', 'Ptk_1Dc2iPY']
 
     useEffect(() => {
         const getSuggestedVideos = async () => {
@@ -22,8 +23,8 @@ const Room = () => {
                 return
             }
 
-            if (cachedResults.has(query)) {
-                setSuggestedVideos(cachedResults.get(query).slice(0, 5));
+            if (cachedResults.has(query) && cachedResults.get(query)) {
+                setSuggestedVideos(cachedResults.get(query));
             } else {
                 const data = await fetchSuggestedVideos(query);
                 cachedResults.set(query, data);
@@ -33,6 +34,13 @@ const Room = () => {
 
         getSuggestedVideos()
     }, [query, cachedResults])
+
+    useEffect(() => {
+        let apiKey = localStorage.getItem("apiKey");
+        if(apiKey){
+            setLocalStorageAPIKey(apiKey)
+        }
+    })
 
     const playVideo = (event) => {
         console.log("Playing Video")
@@ -80,17 +88,17 @@ const Room = () => {
     }
 
     const fetchSuggestedVideos = async (search) => {
-        const apiKey = 'AIzaSyAvz-aJqhbrqZ0mdbYIwI4emIrpvzjYXgo'
+        const apiKey = 'AIzaSyAFQpD74U03NWIFoGd6i9nLLgX9-LUgyF4'
         const response = await fetch(`
-            https://www.googleapis.com/youtube/v3/search?part=snippet&q=${search}&type=video&key=${apiKey}
+            https://www.googleapis.com/youtube/v3/search?part=snippet&q=${search}&type=video&key=${localStorageAPIKey ? localStorageAPIKey : apiKey}
         `)
         const data = await response.json();
         return data.items;
     }
 
     const handleSearchChange = (event) => {
-        const searchTerm = event.target.value;
-        setQuery(searchTerm);
+        event.preventDefault()
+        setQuery(searchBar);
         console.log(suggestedVideos)
     }
 
@@ -98,6 +106,7 @@ const Room = () => {
         const videoId = event.currentTarget.id
         addVideo(videoId)
         setQuery('')
+        setSearchBar('')
     }
 
     const opts = {
@@ -128,18 +137,6 @@ const Room = () => {
                 </div>
             </div>
         </div>}
-        <div className="search">
-            <input type='text' onChange={handleSearchChange} placeholder='Search for videos' value={query}/>
-            <ul style={{listStyleType: 'none'}}>
-                {suggestedVideos[0] && suggestedVideos.map((item, index) => {
-                    return(
-                    <li key={"suggested-" + index} onClick={onSearchClick} id={item.id.videoId}>
-                        <img src={item.snippet.thumbnails.default.url}/>
-                        {item.snippet.title}
-                    </li>)
-                })}
-            </ul>
-        </div>
         
          <h3>Now Playing</h3>
          <div className='queue' style={{display: 'grid'}}>
@@ -148,7 +145,7 @@ const Room = () => {
                 playlist.map((video, index) => {
                     return(
                         <>
-                            <QueueItem videoID={video}/>
+                            <QueueItem videoID={video} key={localStorageAPIKey}/>
                             {index == 0 && <h4>Up Next</h4>}
                         </>
                         
@@ -156,12 +153,22 @@ const Room = () => {
                 }) 
             }
          </div>
-         <button onClick={addVideo}>
-            Add video
-         </button>
-         <button onClick={() => console.log(playlist)}>
-            Check Playlist
-         </button>
+         <div className="search">
+            <form onSubmit={handleSearchChange}>
+                <input type='text' placeholder='Search for videos' id='searchBar' value={searchBar} onChange={() => setSearchBar(event.target.value)} autoComplete='none'/>
+                <button type='submit'>Search</button>
+            </form>
+            
+            <ul style={{listStyleType: 'none'}}>
+                {suggestedVideos && suggestedVideos[0] && suggestedVideos.map((item, index) => {
+                    return(
+                    <li key={"suggested-" + index} onClick={onSearchClick} id={item.id.videoId} style={{display: 'flex'}}>
+                        <img src={item.snippet.thumbnails.default.url}/>
+                        {item.snippet.title}
+                    </li>)
+                })}
+            </ul>
+        </div>
     </Layout> );
 }
  
