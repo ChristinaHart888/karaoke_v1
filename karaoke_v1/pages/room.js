@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { collection, getDocs } from "firebase/firestore"; 
+import { firestore } from "../components/firestore";
 import { useEffect, useMemo, useRef, useState } from 'react';
 import YouTube from 'react-youtube'
 import Layout from '../components/layout';
@@ -8,11 +10,12 @@ const Room = () => {
     const [playlist, setPlaylist] = useState([]);
     const [roomName, setRoomName] = useState('Room');
     const [isPlaying, setIsPlaying] = useState(false);
-    const [searchBar, setSearchBar] = useState();
+    const [searchBar, setSearchBar] = useState('');
     const [query, setQuery] = useState('');
     const [suggestedVideos, setSuggestedVideos] = useState([]);
     const [isEnded, setIsEnded] = useState();
     const [localStorageAPIKey, setLocalStorageAPIKey] = useState();
+    const [roomExists, setRoomExists] = useState();
     const playerRef = useRef(null);
     const cachedResults = useMemo(() => new Map(), [])
 
@@ -35,12 +38,36 @@ const Room = () => {
         getSuggestedVideos()
     }, [query, cachedResults])
 
-    useEffect(() => {
+    useEffect(async () => {
+        const roomId = localStorage.getItem("roomID")
+        let isValidRoom = false
+        const getRooms = async() => {
+            const querySnapshot = await getDocs(collection(firestore, "rooms"));
+            querySnapshot.forEach((doc) => {
+                console.log(roomId, doc.id, (roomId == doc.id))
+                if(roomId == doc.id){
+                    setRoomExists(true)
+                    isValidRoom = true
+                    console.log("Room Exists")
+                }
+            })
+        }
+        await getRooms();
+        if(!isValidRoom){
+            setRoomExists(false)
+        }
         let apiKey = localStorage.getItem("apiKey");
         if(apiKey){
             setLocalStorageAPIKey(apiKey)
         }
-    })
+    }, [])
+
+    useEffect(() => {
+        if(roomExists == false){
+            console.log("Redir")
+            window.location.href = "/searchRoom"
+        }
+    }, [roomExists])
 
     const playVideo = (event) => {
         console.log("Playing Video")
@@ -85,6 +112,7 @@ const Room = () => {
 
     const addVideo = (videoId) => {
         setPlaylist([...playlist, videoId])
+        
     }
 
     const fetchSuggestedVideos = async (search) => {
@@ -107,6 +135,11 @@ const Room = () => {
         addVideo(videoId)
         setQuery('')
         setSearchBar('')
+    }
+
+    const leaveRoomHandler = () => {
+        localStorage.removeItem("roomID")
+        window.location.reload()
     }
 
     const opts = {
@@ -169,6 +202,7 @@ const Room = () => {
                 })}
             </ul>
         </div>
+        <button style={{backgroundColor: "red"}} onClick={leaveRoomHandler}>Leave Room</button>
     </Layout> );
 }
  
