@@ -1,21 +1,27 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
+import useAuth from "../hooks/useAuth";
 
 const Profile = () => {
-
     const [apiKey, setApiKey] = useState();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+    const [isLoggedIn, setIsLoggedIn] = useState(null)
+    const { signOut } = useAuth()
+ 
     useEffect(() => {
         let localStorageAPIKey = localStorage.getItem("apiKey");
-        const uid = localStorage.getItem("uid")
         if(localStorageAPIKey){
             setApiKey(localStorageAPIKey)
         }
-        if(uid){
+        console.log(localStorage.getItem("userID"))
+        if(localStorage.getItem("userID") != null){
             setIsLoggedIn(true)
+        } else {
+            setIsLoggedIn(false)
         }
-    }, [])
+        if(isLoggedIn === false){
+            window.location.href = './login'
+        }
+    }, [isLoggedIn])
 
     const saveChanges = () => {
         console.log(apiKey)
@@ -23,7 +29,7 @@ const Profile = () => {
     }
 
     const logOutHandler = () => {
-
+        signOut()
     }
 
     const logInHandler = () => {
@@ -35,7 +41,7 @@ const Profile = () => {
         <h1>Profile</h1>
         <input type="text" placeholder="API Key" defaultValue={apiKey} onChange={() => setApiKey(event.target.value)}></input>
         <button onClick={saveChanges}>Save</button>
-        {isLoggedIn ? <button>Log Out</button> : <button onClick={logInHandler}>Log In</button>}
+        {isLoggedIn ? <button onClick={logOutHandler}>Log Out</button> : <button onClick={logInHandler}>Log In</button>}
     </Layout> );
 }
  

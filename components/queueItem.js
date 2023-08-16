@@ -17,7 +17,7 @@ const QueueItem = ({videoID, key}) => {
     })
 
     const getVideoInfo = async () => {
-        const apiKeyEnv = process.env.REACT_APP_API_KEY;
+        const apiKeyEnv = process.env.NEXT_PUBLIC_REACT_APP_API_KEY;
         console.log("env", apiKeyEnv)
         let apiKey = "AIzaSyAFQpD74U03NWIFoGd6i9nLLgX9-LUgyF4"
         if(key){

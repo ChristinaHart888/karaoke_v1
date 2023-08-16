@@ -14,8 +14,13 @@ const SearchRoom = () => {
 
     useEffect(() => {
         const getRooms = async() => {
-            const querySnapshot = await getDocs(collection(firestore, "rooms"));
-            setRooms(querySnapshot.docs)
+            try{
+                const querySnapshot = await getDocs(collection(firestore, "rooms"));
+                setRooms(querySnapshot.docs)
+            }catch (e) {
+                console.log(e)
+            }
+            
         }
         getRooms();
     }, [])
@@ -24,7 +29,7 @@ const SearchRoom = () => {
         const roomId = event.currentTarget.id
         console.log(roomId)
         localStorage.setItem("roomID", roomId)
-        window.location.reload()
+        window.location.href = './room'
     }
 
     const createRoom = async (e) => {
@@ -32,13 +37,15 @@ const SearchRoom = () => {
         try {
             console.log("New room name")
             console.log(newRoomName)
+            const userID = localStorage.getItem("userID")
             const newRoom = await addDoc(collection(firestore, "rooms"), {
-                createdBy: "User",
-                roomName: newRoomName
+                createdBy: userID,
+                roomName: newRoomName,
+                members: [userID],
+                queue: []
             })
             console.log("New room id: " + newRoom.id)
             localStorage.setItem("roomID", newRoom.id)
-            alert("New Room Created")
         } catch (e){
             console.error(e)
             alert("An error occured when creating room")
@@ -78,7 +85,7 @@ const SearchRoom = () => {
                 const roomData = room.data();
                 const roomName = roomData.roomName
                 return(
-                    <div id={room.id} onClick={selectRoomHandler} style={{backgroundColor: "#efefef"}}>
+                    <div id={room.id} key={room.id} onClick={selectRoomHandler} style={{backgroundColor: "#efefef"}}>
                         {roomName}
                     </div>
                 )

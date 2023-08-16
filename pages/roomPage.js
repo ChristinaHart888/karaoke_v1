@@ -9,6 +9,7 @@ const RoomPage = () => {
     useEffect(() => {
         const roomID = localStorage.getItem("roomID");
         setRoomId(roomID)
+        console.log("RoomID:", roomID)
     })
 
     return ( 

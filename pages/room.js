@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { collection, getDocs } from "firebase/firestore"; 
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore"; 
 import { firestore } from "../components/firestore";
 import { useEffect, useMemo, useRef, useState } from 'react';
 import YouTube from 'react-youtube'
@@ -7,7 +7,9 @@ import Layout from '../components/layout';
 import QueueItem from '../components/queueItem';
 
 const Room = () => {
+    const [host, setHost] = useState('')
     const [playlist, setPlaylist] = useState([]);
+    const [roomMembers, setRoomMembers] = useState([''])
     const [roomName, setRoomName] = useState('Room');
     const [isPlaying, setIsPlaying] = useState(false);
     const [searchBar, setSearchBar] = useState('');
@@ -15,18 +17,18 @@ const Room = () => {
     const [suggestedVideos, setSuggestedVideos] = useState([]);
     const [isEnded, setIsEnded] = useState();
     const [localStorageAPIKey, setLocalStorageAPIKey] = useState();
-    const [roomExists, setRoomExists] = useState();
+    const [roomExists, setRoomExists] = useState(null);
     const playerRef = useRef(null);
     const cachedResults = useMemo(() => new Map(), [])
+
+    const [userID, setUserID] = useState('')
+    const [roomId, setRoomId] = useState('')
 
     useEffect(() => {
         const getSuggestedVideos = async () => {
             if (!query){
                 setSuggestedVideos([])
-                return
-            }
-
-            if (cachedResults.has(query) && cachedResults.get(query)) {
+            } else if (cachedResults.has(query) && cachedResults.get(query)) {
                 setSuggestedVideos(cachedResults.get(query));
             } else {
                 const data = await fetchSuggestedVideos(query);
@@ -38,16 +40,22 @@ const Room = () => {
         getSuggestedVideos()
     }, [query, cachedResults])
 
-    useEffect(async () => {
-        const roomId = localStorage.getItem("roomID")
+    const initRoom = async () => {
         let isValidRoom = false
         const getRooms = async() => {
             const querySnapshot = await getDocs(collection(firestore, "rooms"));
+            const roomID = localStorage.getItem("roomID")
+            console.log("roomID, ", roomID)
             querySnapshot.forEach((doc) => {
-                console.log(roomId, doc.id, (roomId == doc.id))
-                if(roomId == doc.id){
+                if(roomID == doc.id){
                     setRoomExists(true)
                     isValidRoom = true
+                    console.log("Doc:", doc)
+                    const roomDetails = doc.data()
+                    setPlaylist(roomDetails.queue)
+                    setRoomMembers(roomDetails.members)
+                    setRoomName(roomDetails.roomName)
+                    setHost(roomDetails.createdBy)
                     console.log("Room Exists")
                 }
             })
@@ -60,14 +68,32 @@ const Room = () => {
         if(apiKey){
             setLocalStorageAPIKey(apiKey)
         }
+    }
+
+    useEffect(() => {
+        initRoom()
+        setUserID(localStorage.getItem("userID"))
+        setRoomId(localStorage.getItem("roomID"))
     }, [])
 
     useEffect(() => {
-        if(roomExists == false){
+        if(roomExists === false){
             console.log("Redir")
             window.location.href = "/searchRoom"
         }
     }, [roomExists])
+
+    const deleteRoom = async() => {
+        const docRef = doc(firestore, 'rooms', roomId)
+
+        try {
+            console.log("starting del")
+            await deleteDoc(docRef)
+            console.log("deleting")
+        }catch (error){
+            console.error("error in deleting room. RoomID: " + roomId)
+        }
+    }
 
     const playVideo = (event) => {
         console.log("Playing Video")
@@ -137,7 +163,13 @@ const Room = () => {
         setSearchBar('')
     }
 
-    const leaveRoomHandler = () => {
+    const leaveRoomHandler = async () => {
+        if(host == userID){
+            await deleteRoom()
+            console.log("del room")
+        } else {
+            console.log("Not host")
+        }
         localStorage.removeItem("roomID")
         window.location.reload()
     }
