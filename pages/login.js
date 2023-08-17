@@ -23,7 +23,7 @@ const Login = () => {
                 window.location.reload()
             }
         })
-    }, [])
+    }, [auth])
 
     const logInWithGoogleHandler = () => {
         signInWithRedirect(auth, provider)
