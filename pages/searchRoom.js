@@ -4,13 +4,15 @@ import { addDoc, collection, getDocs } from "firebase/firestore";
 import { firestore } from "../components/firestore";
 import { useEffect, useState } from "react";
 import Link from 'next/link';
+import useDb from "../hooks/useDb";
 
 
 const SearchRoom = () => {
-
     const [rooms, setRooms] = useState()
     const [newRoomName, setNewRoomName] = useState("")
     const [modalDisplay, setModalDisplay] = useState(false)
+
+    const { addMember} = useDb()
 
     useEffect(() => {
         const getRooms = async() => {
@@ -23,11 +25,16 @@ const SearchRoom = () => {
             
         }
         getRooms();
+        const roomId = localStorage.getItem("roomID")
+        if(roomId){
+            window.location.href = './room'
+        }
     }, [])
 
     const selectRoomHandler = async (event) => {
         const roomId = event.currentTarget.id
-        console.log(roomId)
+        const userID = localStorage.getItem('userID')
+        await addMember(userID, roomId)
         localStorage.setItem("roomID", roomId)
         window.location.href = './room'
     }
@@ -50,7 +57,7 @@ const SearchRoom = () => {
             console.error(e)
             alert("An error occured when creating room")
         }
-        window.location.reload()
+        window.location.href = './room'
     }
 
     const createRoomModalHandler = () => {
@@ -80,12 +87,12 @@ const SearchRoom = () => {
             createRoom={createRoom}
             setNewRoomName={setNewRoomName}>
         </Modal>
-        <div className="roomList" style={{display: 'grid'}}>
+        <div className="roomList" style={{display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
             {rooms && rooms.map((room) => {
                 const roomData = room.data();
                 const roomName = roomData.roomName
                 return(
-                    <div id={room.id} key={room.id} onClick={selectRoomHandler} style={{backgroundColor: "#efefef"}}>
+                    <div id={room.id} key={room.id} onClick={selectRoomHandler} style={{backgroundColor: "white", margin: '1em', border: '1px solid black', width: 'auto'}}>
                         {roomName}
                     </div>
                 )

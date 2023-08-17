@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore"; 
+import { collection, getDocs, deleteDoc, doc, onSnapshot } from "firebase/firestore"; 
 import { firestore } from "../components/firestore";
 import { useEffect, useMemo, useRef, useState } from 'react';
 import YouTube from 'react-youtube'
 import Layout from '../components/layout';
 import QueueItem from '../components/queueItem';
+import useDb from '../hooks/useDb';
 
 const Room = () => {
     const [host, setHost] = useState('')
@@ -23,6 +24,7 @@ const Room = () => {
 
     const [userID, setUserID] = useState('')
     const [roomId, setRoomId] = useState('')
+    const { removeMember, addToQueue, removeFromQueue} = useDb()
 
     useEffect(() => {
         const getSuggestedVideos = async () => {
@@ -42,27 +44,43 @@ const Room = () => {
 
     const initRoom = async () => {
         let isValidRoom = false
+        const roomID = localStorage.getItem("roomID")
         const getRooms = async() => {
             const querySnapshot = await getDocs(collection(firestore, "rooms"));
-            const roomID = localStorage.getItem("roomID")
-            console.log("roomID, ", roomID)
+            
             querySnapshot.forEach((doc) => {
                 if(roomID == doc.id){
+                    console.log("Room Exists")
+                    console.log("Doc:", doc)
                     setRoomExists(true)
                     isValidRoom = true
-                    console.log("Doc:", doc)
                     const roomDetails = doc.data()
                     setPlaylist(roomDetails.queue)
                     setRoomMembers(roomDetails.members)
                     setRoomName(roomDetails.roomName)
                     setHost(roomDetails.createdBy)
-                    console.log("Room Exists")
                 }
             })
         }
         await getRooms();
         if(!isValidRoom){
             setRoomExists(false)
+        } else {
+            const docRef = doc(firestore, 'rooms', roomID)
+            const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
+                if(docSnapshot.exists()){
+                    const data = docSnapshot.data()
+                    if(data) {
+                        console.log("Room Data:", data)
+                        setRoomMembers(data.members)
+                        setPlaylist(data.queue)
+                    }
+                }
+            })
+
+            return () => {
+                unsubscribe()
+            }
         }
         let apiKey = localStorage.getItem("apiKey");
         if(apiKey){
@@ -79,6 +97,7 @@ const Room = () => {
     useEffect(() => {
         if(roomExists === false){
             console.log("Redir")
+            localStorage.removeItem("roomID")
             window.location.href = "/searchRoom"
         }
     }, [roomExists])
@@ -128,8 +147,10 @@ const Room = () => {
     }
 
     const onEnd = async (event) => {
-        setPlaylist(playlist.slice(1))
-        if(playlist[0]){
+        //setPlaylist(playlist.slice(1))
+        removeFromQueue(0, roomId)
+        console.log("event:", event)
+        if(playlist[0] && event.target.className != 'skip'){
             event.target.loadVideoById(playlist[0])
         } else {
             setIsEnded(true)
@@ -137,8 +158,9 @@ const Room = () => {
     }
 
     const addVideo = (videoId) => {
-        setPlaylist([...playlist, videoId])
-        
+        const newPlaylist = [...playlist, videoId]
+        //setPlaylist(newPlaylist)
+        addToQueue(videoId, roomId)
     }
 
     const fetchSuggestedVideos = async (search) => {
@@ -166,9 +188,8 @@ const Room = () => {
     const leaveRoomHandler = async () => {
         if(host == userID){
             await deleteRoom()
-            console.log("del room")
         } else {
-            console.log("Not host")
+            await removeMember(userID, roomId)
         }
         localStorage.removeItem("roomID")
         window.location.reload()
@@ -181,44 +202,9 @@ const Room = () => {
     }
 
     return ( 
-    <Layout>
+    <>
         <h1>{roomName}</h1>
-        {playlist[0] && <div className="video-player" style={{width:"100%"}}>
-            <YouTube 
-            videoId={playlist[0]}
-            opts={opts} 
-            onReady={playVideo} 
-            onPlay={onPlay}
-            onPause={onPause}
-            onEnd={onEnd}
-            ref={playerRef}
-            />
-            <div className="controls">
-                <div className="play-pause" onClick={playPause}>
-                    Play/Pause
-                </div>
-                <div className="skip" onClick={skip}>
-                    Skip
-                </div>
-            </div>
-        </div>}
-        
-         <h3>Now Playing</h3>
-         <div className='queue' style={{display: 'grid'}}>
-            
-            {
-                playlist.map((video, index) => {
-                    return(
-                        <>
-                            <QueueItem videoID={video} key={localStorageAPIKey}/>
-                            {index == 0 && <h4>Up Next</h4>}
-                        </>
-                        
-                    )
-                }) 
-            }
-         </div>
-         <div className="search">
+        <div className="search">
             <form onSubmit={handleSearchChange}>
                 <input type='text' placeholder='Search for videos' id='searchBar' value={searchBar} onChange={() => setSearchBar(event.target.value)} autoComplete='none'/>
                 <button type='submit'>Search</button>
@@ -234,8 +220,42 @@ const Room = () => {
                 })}
             </ul>
         </div>
+        {host === userID && playlist[0] && <div className="video-player" style={{width:"100%"}}>
+            <YouTube 
+            videoId={playlist[0]}
+            opts={opts} 
+            onReady={playVideo} 
+            onPlay={onPlay}
+            onPause={onPause}
+            onEnd={onEnd}
+            ref={playerRef}
+            />
+            <div className="controls">
+                <div className="play-pause" onClick={playPause}>
+                    Play/Pause
+                </div>
+                <div className="skip" onClick={onEnd}>
+                    Skip
+                </div>
+            </div>
+        </div>}
+
+        <h3>Now Playing</h3>
+        <div className='queue' style={{display: 'grid'}}>
+        {
+            playlist.map((video, index) => {
+                return(
+                    <>
+                        <QueueItem videoID={video} key={localStorageAPIKey}/>
+                        {index == 0 && <h4>Up Next</h4>}
+                    </>
+                    
+                )
+            }) 
+        }
+        </div>
         <button style={{backgroundColor: "red"}} onClick={leaveRoomHandler}>Leave Room</button>
-    </Layout> );
+    </> );
 }
  
 export default Room;
