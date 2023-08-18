@@ -30,6 +30,12 @@ const Profile = () => {
 
     const saveChanges = () => {
         console.log(apiKey)
+        let key = apiKey
+        if (apiKey == "2"){
+            key = process.env.REACT_APP_API_KEY_BACKUP
+        } else if (apiKey == "3"){
+            key = process.env.REACT_APP_API_KEY_BACKUP_TWO
+        }
         localStorage.setItem("apiKey", apiKey);
     }
 

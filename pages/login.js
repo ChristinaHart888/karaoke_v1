@@ -40,7 +40,7 @@ const Login = () => {
     return ( 
         <Layout>
             <h1>Login</h1>
-            <button onClick={logInWithGoogleHandler}>
+            <button onClick={logInWithGoogleHandler} disabled>
                 Log in with Google
             </button>
             <button onClick={guestButtonHandler}>
