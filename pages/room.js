@@ -200,6 +200,7 @@ const Room = () => {
     const opts = {
         playerVars: {
             autoplay: 1,
+            playsinline: 1
         }
     }
 
