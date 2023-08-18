@@ -47,7 +47,7 @@ const Profile = () => {
         <p>Hello, {username}</p>
         <input type="text" placeholder="API Key" defaultValue={apiKey} onChange={() => setApiKey(event.target.value)}></input>
         <button onClick={saveChanges}>Save</button>
-        {isLoggedIn ? <button onClick={logOutHandler} style={{width: '100%', margin: '1em', color: 'white', backgroundColor: 'red', borderRadius: '15px', padding: '0.5em', border: '0.1em solid white'}}>Log Out</button> : <button onClick={logInHandler}>Log In</button>}
+        {isLoggedIn ? <button onClick={logOutHandler} style={{width: '60%', margin: '1em', color: 'white', backgroundColor: 'red', borderRadius: '15px', padding: '0.5em', border: '0.1em solid white'}}>Log Out</button> : <button onClick={logInHandler}>Log In</button>}
     </Layout> );
 }
  
