@@ -92,7 +92,7 @@ const SearchRoom = () => {
                 const roomData = room.data();
                 const roomName = roomData.roomName
                 return(
-                    <div id={room.id} key={room.id} onClick={selectRoomHandler} style={{backgroundColor: "white", margin: '1em', border: '1px solid black', width: 'auto'}}>
+                    <div id={room.id} key={room.id} onClick={selectRoomHandler} style={{backgroundColor: "#333", color: 'white', textAlign: 'center', fontWeight: 'bold', margin: '1em', border: '1px solid black', width: 'auto', padding: '1em', fontSize: 'large', borderRadius: '0.5em'}}>
                         {roomName}
                     </div>
                 )

@@ -6,6 +6,8 @@ import YouTube from 'react-youtube'
 import Layout from '../components/layout';
 import QueueItem from '../components/queueItem';
 import useDb from '../hooks/useDb';
+import '../styles/Home.module.css'
+import MediaControl from '../components/mediaControl';
 
 const Room = () => {
     const [host, setHost] = useState('')
@@ -130,9 +132,9 @@ const Room = () => {
         
     }
 
-    const skip = () => {
-        const duration = playerRef.current.internalPlayer.getDuration();
-        playerRef.current.internalPlayer.nextVideo();
+    const rewind = () => {
+        //const duration = playerRef.current.internalPlayer.getDuration();
+        playerRef.current.internalPlayer.seekTo(0)
     }
 
     const onPlay = () => {
@@ -198,29 +200,39 @@ const Room = () => {
     const opts = {
         playerVars: {
             autoplay: 1,
-          }
+        }
     }
 
     return ( 
     <>
-        <h1>{roomName}</h1>
-        <div className="search">
-            <form onSubmit={handleSearchChange}>
-                <input type='text' placeholder='Search for videos' id='searchBar' value={searchBar} onChange={() => setSearchBar(event.target.value)} autoComplete='none'/>
-                <button type='submit'>Search</button>
+        <div style={{borderBottom: '1px solid black', fontFamily: 'Arial', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', marginBottom: '1em'}}>
+            <div className="roomName" style={{justifyContent: 'flex-start', display: 'flex', width: '100%'}}>
+                <h1>{roomName}</h1>
+            </div>
+           <div className="leave-btn"style={{justifyContent: 'flex-end', display: 'flex', width: '100%'}}>
+                <button style={{backgroundColor: "red", padding: '10px', height: '3em', color: 'white', border: '1px solid white', borderRadius: '0.5em', fontWeight: 'bold'}} onClick={leaveRoomHandler}>Leave Room</button>
+           </div>
+        </div>
+
+        <div className="search-div" style={{justifyContent: 'center', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+            <form onSubmit={handleSearchChange} style={{width: '100%'}}>
+                <input type='text' placeholder='Search for videos' id='search-input' style={{width: '75%', padding: '10px', fontSize: '16px', boxSizing: 'border-box'}} value={searchBar} onChange={() => setSearchBar(event.target.value)} autoComplete='none'/>
+                <button type='submit' style={{width: '20%', padding: '10px', height: 'auto', fontSize: '16px', boxSizing: 'border-box'}}>Search</button>
             </form>
             
-            <ul style={{listStyleType: 'none'}}>
+            <ul style={{listStyleType: 'none', width: '100%'}}>
                 {suggestedVideos && suggestedVideos[0] && suggestedVideos.map((item, index) => {
                     return(
-                    <li key={"suggested-" + index} onClick={onSearchClick} id={item.id.videoId} style={{display: 'flex'}}>
+                    <li key={"suggested-" + index} onClick={onSearchClick} id={item.id.videoId} style={{display: 'flex', marginBottom: '0.1em'}}>
                         <img src={item.snippet.thumbnails.default.url}/>
                         {item.snippet.title}
                     </li>)
                 })}
             </ul>
         </div>
-        {host === userID && playlist[0] && <div className="video-player" style={{width:"100%"}}>
+        <div className="vid">
+            {host === userID && playlist[0] && 
+            <div className="video-player" style={{width:"100%"}}>
             <YouTube 
             videoId={playlist[0]}
             opts={opts} 
@@ -230,31 +242,28 @@ const Room = () => {
             onEnd={onEnd}
             ref={playerRef}
             />
-            <div className="controls">
-                <div className="play-pause" onClick={playPause}>
-                    Play/Pause
-                </div>
-                <div className="skip" onClick={onEnd}>
-                    Skip
+                <div className="controls" style={{display: 'flex', width: '100%', justifyContent: 'space-around'}}>
+                    <MediaControl callback={rewind} icon={'⏪︎'}></MediaControl>
+                    <MediaControl callback={playPause} icon={isPlaying ? "⏸︎" : ' ⏵︎'}></MediaControl>
+                    <MediaControl callback={onEnd} icon={'⏩︎'} className='skip'></MediaControl>
                 </div>
             </div>
-        </div>}
-
-        <h3>Now Playing</h3>
-        <div className='queue' style={{display: 'grid'}}>
-        {
-            playlist.map((video, index) => {
-                return(
-                    <>
-                        <QueueItem videoID={video} key={localStorageAPIKey}/>
-                        {index == 0 && <h4>Up Next</h4>}
-                    </>
-                    
-                )
-            }) 
-        }
+            }
+            <h3>Now Playing</h3>
+            <div className='queue' style={{display: 'grid'}}>
+            {
+                playlist.map((video, index) => {
+                    return(
+                        <>
+                            <QueueItem videoID={video} key={localStorageAPIKey}/>
+                            {index == 0 && <h4>Up Next</h4>}
+                        </>
+                        
+                    )
+                }) 
+            }
+            </div>
         </div>
-        <button style={{backgroundColor: "red"}} onClick={leaveRoomHandler}>Leave Room</button>
     </> );
 }
  

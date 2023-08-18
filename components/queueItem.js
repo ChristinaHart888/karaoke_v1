@@ -40,7 +40,7 @@ const QueueItem = ({videoID, key}) => {
     }
 
     return ( 
-    <div style={{display: 'flex'}}>
+    <div style={{display: 'flex', marginBottom: '0.1em'}}>
         <img src={thumbnail}></img>
         <p style={{marginTop: 0, marginLeft: "0.5em"}}>{title}</p>
     </div> );
