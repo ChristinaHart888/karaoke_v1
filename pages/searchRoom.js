@@ -34,6 +34,9 @@ const SearchRoom = () => {
     const selectRoomHandler = async (event) => {
         const roomId = event.currentTarget.id
         const userID = localStorage.getItem('userID')
+        if(userID == null){
+            window.location.href = './login'
+        }
         await addMember(userID, roomId)
         localStorage.setItem("roomID", roomId)
         window.location.href = './room'
@@ -45,6 +48,9 @@ const SearchRoom = () => {
             console.log("New room name")
             console.log(newRoomName)
             const userID = localStorage.getItem("userID")
+            if(userID == null){
+                window.location.href = './login'
+            }
             const newRoom = await addDoc(collection(firestore, "rooms"), {
                 createdBy: userID,
                 roomName: newRoomName,
