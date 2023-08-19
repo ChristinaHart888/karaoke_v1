@@ -11,6 +11,8 @@ const QueueItem = ({videoID, key}) => {
             if(videoInfo){
                 setTitle(videoInfo.videoTitle)
                 setThumbnail(videoInfo.videoThumbnail)
+            }else {
+                setTitle("Error, API Key has expired. Please exit the room and change it in the profile page.")
             }
         }
         fetchData()
