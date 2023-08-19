@@ -40,6 +40,7 @@ const Profile = () => {
             key = process.env.NEXT_PUBLIC_REACT_APP_API_KEY
         }
         localStorage.setItem("apiKey", key);
+        window.location.reload()
     }
 
     const logOutHandler = () => {
