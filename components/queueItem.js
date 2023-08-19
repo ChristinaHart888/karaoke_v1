@@ -17,12 +17,12 @@ const QueueItem = ({videoID, key}) => {
     })
 
     const getVideoInfo = async () => {
-        const apiKeyEnv = process.env.NEXT_PUBLIC_REACT_APP_API_KEY;
-        console.log("env", apiKeyEnv)
-        let apiKey = "AIzaSyAFQpD74U03NWIFoGd6i9nLLgX9-LUgyF4"
-        if(key){
-            console.log("Custom key exists: ", key)
-            apiKey = key
+        const localApiKey = localStorage.getItem("apiKey")
+        let apiKey
+        if(localApiKey){
+            apiKey = localApiKey;
+        }else{
+            apiKey = process.env.NEXT_PUBLIC_REACT_APP_API_KEY;
         }
         const response = await fetch(`
             https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=${apiKey}`)
@@ -36,7 +36,7 @@ const QueueItem = ({videoID, key}) => {
         } else if(response.status == "403") {
             console.error("Failed to retrieve data for youtube video ID: " + videoID);
             console.log(response)
-            alert("API Key Expired. Please use another one.")
+            //alert("API Key Expired. Please use another one.")
             return null;
         }
     }

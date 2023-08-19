@@ -55,7 +55,8 @@ const Profile = () => {
         <h1>Profile</h1>
         <p>Hello, {username}</p>
         <input type="text" placeholder="API Key" onChange={(event) => setApiKey(event.target.value)}></input>
-        <button onClick={saveChanges}>Save</button>
+        <p>Current API Key: {apiKey && apiKey}</p>
+        <button onClick={saveChanges}>Save</button><br></br>
         {isLoggedIn ? <button onClick={logOutHandler} style={{width: '60%', margin: '1em', color: 'white', backgroundColor: 'red', borderRadius: '15px', padding: '0.5em', border: '0.1em solid white'}}>Log Out</button> : <button onClick={logInHandler}>Log In</button>}
     </Layout> );
 }
