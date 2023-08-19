@@ -30,14 +30,14 @@ const Profile = () => {
 
     const saveChanges = () => {
         let key = apiKey
-        if (apiKey == "1"){
-            key = process.env.NEXT_PUBLIC_REACT_APP_API_KEY
-        } else if (apiKey == "2"){
+        if (apiKey == "2"){
             key = process.env.NEXT_PUBLIC_REACT_APP_API_KEY_BACKUP
         } else if (apiKey == "3"){
             key = process.env.NEXT_PUBLIC_REACT_APP_API_KEY_BACKUP_TWO
         } else if (apiKey == '4'){
             key = process.env.NEXT_PUBLIC_REACT_APP_API_KEY_BACKUP_THREE
+        } else {
+            key = process.env.NEXT_PUBLIC_REACT_APP_API_KEY
         }
         localStorage.setItem("apiKey", key);
     }
@@ -54,7 +54,7 @@ const Profile = () => {
     <Layout>
         <h1>Profile</h1>
         <p>Hello, {username}</p>
-        <input type="text" placeholder="API Key" defaultValue={apiKey} onChange={(event) => setApiKey(event.target.value)}></input>
+        <input type="text" placeholder="API Key" onChange={(event) => setApiKey(event.target.value)}></input>
         <button onClick={saveChanges}>Save</button>
         {isLoggedIn ? <button onClick={logOutHandler} style={{width: '60%', margin: '1em', color: 'white', backgroundColor: 'red', borderRadius: '15px', padding: '0.5em', border: '0.1em solid white'}}>Log Out</button> : <button onClick={logInHandler}>Log In</button>}
     </Layout> );
