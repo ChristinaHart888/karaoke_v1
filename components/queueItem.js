@@ -21,6 +21,7 @@ const QueueItem = ({videoID, key}) => {
         console.log("env", apiKeyEnv)
         let apiKey = "AIzaSyAFQpD74U03NWIFoGd6i9nLLgX9-LUgyF4"
         if(key){
+            console.log("Custom key exists: ", key)
             apiKey = key
         }
         const response = await fetch(`
@@ -32,9 +33,10 @@ const QueueItem = ({videoID, key}) => {
             const thumbnail = data.items[0].snippet.thumbnails.default.url;
 
             return {videoTitle: videoTitle, videoThumbnail: thumbnail}
-        } else {
+        } else if(response.status == "403") {
             console.error("Failed to retrieve data for youtube video ID: " + videoID);
             console.log(response)
+            alert("API Key Expired. Please use another one.")
             return null;
         }
     }

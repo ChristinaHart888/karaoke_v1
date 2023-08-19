@@ -19,7 +19,7 @@ const Room = () => {
     const [query, setQuery] = useState('');
     const [suggestedVideos, setSuggestedVideos] = useState([]);
     const [isEnded, setIsEnded] = useState();
-    const [localStorageAPIKey, setLocalStorageAPIKey] = useState();
+    const [localStorageAPIKey, setLocalStorageAPIKey] = useState(null);
     const [roomExists, setRoomExists] = useState(null);
     const playerRef = useRef(null);
     const cachedResults = useMemo(() => new Map(), [])
@@ -45,6 +45,12 @@ const Room = () => {
     }, [query, cachedResults])
 
     const initRoom = async () => {
+        let apiKey = localStorage.getItem("apiKey");
+        if(apiKey){
+            console.log("apiKey:", apiKey)
+            setLocalStorageAPIKey(apiKey)
+        }
+        
         let isValidRoom = false
         const roomID = localStorage.getItem("roomID")
         const getRooms = async() => {
@@ -83,10 +89,6 @@ const Room = () => {
             return () => {
                 unsubscribe()
             }
-        }
-        let apiKey = localStorage.getItem("apiKey");
-        if(apiKey){
-            setLocalStorageAPIKey(apiKey)
         }
     }
 
