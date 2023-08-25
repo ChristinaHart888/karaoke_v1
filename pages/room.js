@@ -1,13 +1,14 @@
-import Link from 'next/link'
 import { collection, getDocs, deleteDoc, doc, onSnapshot } from "firebase/firestore"; 
 import { firestore } from "../components/firestore";
 import { useEffect, useMemo, useRef, useState } from 'react';
 import YouTube from 'react-youtube'
-import Layout from '../components/layout';
 import QueueItem from '../components/queueItem';
 import useDb from '../hooks/useDb';
 import '../styles/Home.module.css'
 import MediaControl from '../components/mediaControl';
+import he from 'he'
+
+import styles from '../styles/room.module.css'
 
 const Room = () => {
     const [host, setHost] = useState('')
@@ -227,46 +228,55 @@ const Room = () => {
                     return(
                     <li key={"suggested-" + index} onClick={(e) => onSearchClick(e, item)} id={item.id.videoId} style={{display: 'flex', marginBottom: '0.1em'}}>
                         <img src={item.snippet.thumbnails.default.url}/>
-                        {item.snippet.title}
+                        {he.decode(item.snippet.title)}
                     </li>)
                 })}
             </ul>
         </div>
-        <div className="vid">
-            {host === userID && playlist[0] && 
-            <div className="video-player" style={{width:"100%"}}>
-            <YouTube 
-            videoId={playlist[0].videoID}
-            opts={opts} 
-            onReady={playVideo} 
-            onPlay={onPlay}
-            onPause={onPause}
-            onEnd={onEnd}
-            ref={playerRef}
-            />
-                <div className="controls" style={{display: 'flex', width: '100%', justifyContent: 'space-around'}}>
-                    <MediaControl callback={rewind} icon={'⏪︎'}></MediaControl>
-                    <MediaControl callback={playPause} icon={isPlaying ? "⏸︎" : ' ⏵︎'}></MediaControl>
-                    <MediaControl callback={onEnd} icon={'⏩︎'} className='skip'></MediaControl>
+        <div className={styles.dashboard}>
+            <div className={styles.vid}>
+                {host === userID && playlist[0] && 
+                <div className="video-player" style={{width:"100%"}}>
+                <YouTube 
+                videoId={playlist[0].videoID}
+                opts={opts} 
+                onReady={playVideo} 
+                onPlay={onPlay}
+                onPause={onPause}
+                onEnd={onEnd}
+                ref={playerRef}
+                />
+                    <div className="controls" style={{display: 'flex', width: '100%', justifyContent: 'space-around'}}>
+                        <MediaControl callback={rewind} icon={'⏪︎'}></MediaControl>
+                        <MediaControl callback={playPause} icon={isPlaying ? "⏸︎" : ' ⏵︎'}></MediaControl>
+                        <MediaControl callback={onEnd} icon={'⏩︎'} className='skip'></MediaControl>
+                    </div>
                 </div>
+                }
+                <div className="song-list">
+                    <h3>Now Playing</h3>
+                    <div className='queue' style={{display: 'grid'}}>
+                    {
+                        playlist.map((video, index) => {
+                            console.log("video: ", video)
+                            return(
+                                <>
+                                    <QueueItem video={video} key={localStorageAPIKey}/>
+                                    {index == 0 && <h4>Up Next</h4>}
+                                </>
+                                
+                            )
+                        }) 
+                    }
+                    </div>
+                </div>
+                
             </div>
-            }
-            <h3>Now Playing</h3>
-            <div className='queue' style={{display: 'grid'}}>
-            {
-                playlist.map((video, index) => {
-                    console.log("video: ", video)
-                    return(
-                        <>
-                            <QueueItem video={video} key={localStorageAPIKey}/>
-                            {index == 0 && <h4>Up Next</h4>}
-                        </>
-                        
-                    )
-                }) 
-            }
+            <div className={styles.members}>
+                <h3>Members</h3>
             </div>
         </div>
+        
     </> );
 }
  

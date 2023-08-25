@@ -1,7 +1,6 @@
-import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import React from "react";
-import { firestore } from "./firestore";
+import he from 'he'
 
 const QueueItem = ({video, key}) => {
     const [title, setTitle] = useState(null);
@@ -11,7 +10,8 @@ const QueueItem = ({video, key}) => {
         const fetchData = () => {
             const videoInfo = getVideoInfo();
             if(videoInfo){
-                setTitle(videoInfo.videoTitle)
+                let decodedTitle = he.decode(videoInfo.videoTitle)
+                setTitle(decodedTitle)
                 setThumbnail(videoInfo.videoThumbnail)
             }else {
                 setTitle("Error, API Key has expired. Please exit the room and change it in the profile page.")
