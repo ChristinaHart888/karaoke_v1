@@ -58,8 +58,6 @@ const Room = () => {
             
             querySnapshot.forEach((doc) => {
                 if(roomID == doc.id){
-                    console.log("Room Exists")
-                    console.log("Doc:", doc)
                     setRoomExists(true)
                     isValidRoom = true
                     const roomDetails = doc.data()
@@ -151,7 +149,6 @@ const Room = () => {
     }
 
     const onEnd = async (event) => {
-        //setPlaylist(playlist.slice(1))
         removeFromQueue(0, roomId)
         console.log("event:", event)
         if(playlist[0] && event.target.className != 'skip'){
@@ -161,10 +158,11 @@ const Room = () => {
         }
     }
 
-    const addVideo = (videoId) => {
-        const newPlaylist = [...playlist, videoId]
-        //setPlaylist(newPlaylist)
-        addToQueue(videoId, roomId)
+    const addVideo = (item) => {
+        const videoId = item.id.videoId
+        const title = item.snippet.title
+        const thumbnail = item.snippet.thumbnails.default.url
+        addToQueue(videoId, title, thumbnail, roomId)
     }
 
     const fetchSuggestedVideos = async (search) => {
@@ -182,9 +180,10 @@ const Room = () => {
         console.log(suggestedVideos)
     }
 
-    const onSearchClick = (event) => {
+    const onSearchClick = (event, item) => {
         const videoId = event.currentTarget.id
-        addVideo(videoId)
+        console.log("Item: ", item)
+        addVideo(item)
         setQuery('')
         setSearchBar('')
     }
@@ -226,7 +225,7 @@ const Room = () => {
             <ul style={{listStyleType: 'none', width: '100%'}}>
                 {suggestedVideos && suggestedVideos[0] && suggestedVideos.map((item, index) => {
                     return(
-                    <li key={"suggested-" + index} onClick={onSearchClick} id={item.id.videoId} style={{display: 'flex', marginBottom: '0.1em'}}>
+                    <li key={"suggested-" + index} onClick={(e) => onSearchClick(e, item)} id={item.id.videoId} style={{display: 'flex', marginBottom: '0.1em'}}>
                         <img src={item.snippet.thumbnails.default.url}/>
                         {item.snippet.title}
                     </li>)
@@ -237,7 +236,7 @@ const Room = () => {
             {host === userID && playlist[0] && 
             <div className="video-player" style={{width:"100%"}}>
             <YouTube 
-            videoId={playlist[0]}
+            videoId={playlist[0].videoID}
             opts={opts} 
             onReady={playVideo} 
             onPlay={onPlay}
@@ -256,9 +255,10 @@ const Room = () => {
             <div className='queue' style={{display: 'grid'}}>
             {
                 playlist.map((video, index) => {
+                    console.log("video: ", video)
                     return(
                         <>
-                            <QueueItem videoID={video} key={localStorageAPIKey}/>
+                            <QueueItem video={video} key={localStorageAPIKey}/>
                             {index == 0 && <h4>Up Next</h4>}
                         </>
                         

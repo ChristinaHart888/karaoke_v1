@@ -26,13 +26,13 @@ const useDb = () => {
         }
     }
 
-    const addToQueue = async (videoID, roomID, collectionName = 'rooms') => {
+    const addToQueue = async (videoID, videoTitle, videoThumbnail, roomID, collectionName = 'rooms') => {
         const docReference = doc(firestore, collectionName, roomID)
         const docSnapshot = await getDoc(docReference)
         const currentQueue = docSnapshot.data().queue
 
         if (Array.isArray(currentQueue)){
-            const newQueue = [...currentQueue, videoID]
+            const newQueue = [...currentQueue, {videoID: videoID, videoThumbnail: videoThumbnail, videoTitle: videoTitle}]
             await updateDoc(docReference, { queue: newQueue})
         }
     }

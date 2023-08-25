@@ -1,13 +1,15 @@
+import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import React from "react";
+import { firestore } from "./firestore";
 
-const QueueItem = ({videoID, key}) => {
-    const [title, setTitle] = useState();
-    const [thumbnail, setThumbnail] = useState();
+const QueueItem = ({video, key}) => {
+    const [title, setTitle] = useState(null);
+    const [thumbnail, setThumbnail] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            const videoInfo = await getVideoInfo();
+        const fetchData = () => {
+            const videoInfo = getVideoInfo();
             if(videoInfo){
                 setTitle(videoInfo.videoTitle)
                 setThumbnail(videoInfo.videoThumbnail)
@@ -16,31 +18,11 @@ const QueueItem = ({videoID, key}) => {
             }
         }
         fetchData()
+        
     })
 
-    const getVideoInfo = async () => {
-        const localApiKey = localStorage.getItem("apiKey")
-        let apiKey
-        if(localApiKey){
-            apiKey = localApiKey;
-        }else{
-            apiKey = process.env.NEXT_PUBLIC_REACT_APP_API_KEY;
-        }
-        const response = await fetch(`
-            https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=${apiKey}`)
-        if(response.ok) {
-            const data = await response.json();
-
-            const videoTitle = data.items[0].snippet.title;
-            const thumbnail = data.items[0].snippet.thumbnails.default.url;
-
-            return {videoTitle: videoTitle, videoThumbnail: thumbnail}
-        } else if(response.status == "403") {
-            console.error("Failed to retrieve data for youtube video ID: " + videoID);
-            console.log(response)
-            //alert("API Key Expired. Please use another one.")
-            return null;
-        }
+    const getVideoInfo =  () => {
+        return {videoTitle: video.videoTitle, videoThumbnail: video.videoThumbnail}
     }
 
     return ( 
