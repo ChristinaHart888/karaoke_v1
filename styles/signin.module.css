@@ -7,8 +7,7 @@
     margin-top: 5em;
     display: flex;
     flex-direction: column;
-    padding: 1.5em;
-    min-height: 660px;
+    min-height: 560px;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     padding: 60px 68px 40px;
@@ -18,14 +17,14 @@
 .formInput {
     width: 100%;
     height: 50px;
-    padding: 10px 16px ;
+    padding: 16px 10px 0px 10px;
     line-height: 50px;
     display: block;
     box-sizing: border-box;
     font-size: 16px;
     letter-spacing: 0 !important;
     direction: ltr;
-    background-color: #333;
+    background-color: #333 !important;
     border: 0;
     color: #fff;
 }
@@ -42,35 +41,77 @@
     margin: 24px 0 12px;
 }
 
-#guestBtn {
-    margin-top: 0px;
+.container {
+  position: relative;
+  background-image: url('https://cdn.outsideonline.com/wp-content/uploads/2018/11/20/outside-guide-grand-canyon_h.jpg');
+  background-size: cover;
+  height: calc(100vh - 35px);
+  overflow: hidden;
 }
 
 /* Media query for larger screens */
 @media screen and (min-width: 768px) {
-    .container {
-      background-image: url('https://cdn.outsideonline.com/wp-content/uploads/2018/11/20/outside-guide-grand-canyon_h.jpg');
-      background-size: cover;
-      height: 100vh;
-      overflow: hidden;
-    }
-  
     .loginBox {
       width: 450px;
+      padding: 60px 68px 40px;
     }
   }
   
-  /* Media query for smaller screens */
-  @media screen and (max-width: 767px) {
-    .container {
-      background-size: cover;
-    }
-  
-    .loginBox {
-      width: 90%;
-    }
+/* Media query for smaller screens */
+@media screen and (max-width: 767px) {
+  .loginBox {
+    width: 90%;
+    padding: 1.5em;
   }
+}
 
 .signUpLink {
     color: gold;
+}
+
+.inputContainer {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.label {
+  position: absolute;
+  pointer-events: none;
+  top: 63%;
+  left: 10px;
+  transform: translateY(-50%);
+  transition: 0.2s ease all;
+  color: #888; 
+}
+
+.formInput:focus + .label,
+.formInput:not(:placeholder-shown) + .label {
+  top: 22%;
+  font-size: 12px;
+  color: #fff; /* Active label color */
+}
+
+.popUpShow {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: crimson;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 20em;
+  padding: 1em;
+  border: 5px solid red;
+  border-radius: 15px;
+  opacity: 1;
+  visibility: visible;
+  transition: 150ms ease-in-out
+}
+
+.popUpHide {
+  opacity: 0;
+  visibility: hidden;
+  transition: 150ms ease-in
+}
+
+.errorMessage {
+  font-family: Arial, Helvetica, sans-serif;
 }

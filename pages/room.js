@@ -258,7 +258,6 @@ const Room = () => {
                     <div className='queue' style={{display: 'grid'}}>
                     {
                         playlist.map((video, index) => {
-                            console.log("video: ", video)
                             return(
                                 <>
                                     <QueueItem video={video} key={localStorageAPIKey}/>
