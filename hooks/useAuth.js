@@ -8,6 +8,7 @@ import {
 	query,
 	setDoc,
 	where,
+	getDoc,
 } from "firebase/firestore";
 import bcrypt from "bcryptjs";
 import { v4 as uuiv4 } from "uuid";
@@ -109,6 +110,21 @@ const useAuth = () => {
 		return data;
 	};
 
+	const getUsername = async (userID) => {
+		console.log("UserID", userID);
+		const docRef = doc(firestore, "users", userID);
+		const docSnapshot = await getDoc(docRef);
+
+		if (docSnapshot.exists()) {
+			const username = docSnapshot.data().username;
+			return username;
+		} else {
+			console.log("Not found");
+		}
+
+		return null;
+	};
+
 	return {
 		isLoggedIn,
 		setIsLoggedIn,
@@ -117,6 +133,7 @@ const useAuth = () => {
 		login,
 		signUp,
 		signOut,
+		getUsername,
 	};
 };
 

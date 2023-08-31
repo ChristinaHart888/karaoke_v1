@@ -6,26 +6,31 @@ const Profile = () => {
 	const [apiKey, setApiKey] = useState();
 	const [isLoggedIn, setIsLoggedIn] = useState(null);
 	const [username, setUsername] = useState("Guest");
-	const { signOut } = useAuth();
+	const { signOut, getUsername } = useAuth();
 
 	useEffect(() => {
 		let localStorageAPIKey = localStorage.getItem("apiKey");
-		let uname = localStorage.getItem("username");
+		let userID = localStorage.getItem("userID");
 
-		if (localStorageAPIKey) {
-			setApiKey(localStorageAPIKey);
-		}
-		if (localStorage.getItem("userID") != null) {
-			setIsLoggedIn(true);
-		} else {
-			setIsLoggedIn(false);
-		}
-		if (uname != null) {
-			setUsername(uname);
-		}
-		if (isLoggedIn === false) {
-			window.location.href = "./login";
-		}
+		const handleUsername = async () => {
+			const uname = await getUsername(userID);
+			if (localStorageAPIKey) {
+				setApiKey(localStorageAPIKey);
+			}
+			if (localStorage.getItem("userID") != null) {
+				setIsLoggedIn(true);
+			} else {
+				setIsLoggedIn(false);
+			}
+			if (uname != null) {
+				setUsername(uname);
+			}
+			if (isLoggedIn === false) {
+				window.location.href = "./login";
+			}
+		};
+
+		handleUsername();
 	}, [isLoggedIn]);
 
 	const saveChanges = () => {
