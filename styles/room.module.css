@@ -1,22 +1,21 @@
 .dashboard {
-    display: flex;
-  }
-  
+	display: flex;
+}
+
 .vid {
-    flex: 3;
-    margin-inline: 1em;
-    /* Additional styling */
-  }
-  
+	flex: 3;
+	margin-inline: 1em;
+	/* Additional styling */
+}
+
 .members {
-    flex: 1;
-    margin-inline: 1em;
-    /* Additional styling */
-  }
-  
+	flex: 1;
+	margin-inline: 1em;
+	/* Additional styling */
+}
 
 @media screen and (max-width: 768px) {
-    .dashboard {
-      flex-direction: column;
-    }
-  }
+	.dashboard {
+		flex-direction: column;
+	}
+}
