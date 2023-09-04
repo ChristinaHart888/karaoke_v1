@@ -13,6 +13,7 @@ import useDb from "../hooks/useDb";
 import "../styles/Home.module.css";
 import MediaControl from "../components/mediaControl";
 import he from "he";
+import QRCode from "qrcode.react";
 
 import styles from "../styles/room.module.css";
 
@@ -30,10 +31,13 @@ const Room = () => {
 	const [roomExists, setRoomExists] = useState(null);
 	const playerRef = useRef(null);
 	const cachedResults = useMemo(() => new Map(), []);
+	const [inviteLink, setInviteLink] = useState("");
 
 	const [userID, setUserID] = useState("");
 	const [roomId, setRoomId] = useState("");
 	const { removeMember, addToQueue, removeFromQueue } = useDb();
+
+	const inviteModal = useRef();
 
 	useEffect(() => {
 		const getSuggestedVideos = async () => {
@@ -72,6 +76,14 @@ const Room = () => {
 					setRoomMembers(roomDetails.members);
 					setRoomName(roomDetails.roomName);
 					setHost(roomDetails.createdBy);
+					const hostname = window.location.hostname;
+					const port = window.location.port;
+					console.log(hostname + ":" + port + "/joinRoom");
+					if (port) {
+						setInviteLink(hostname + ":" + port + "/joinRoom");
+					} else {
+						setInviteLink(hostname + "/joinRoom");
+					}
 				}
 			});
 		};
@@ -215,6 +227,11 @@ const Room = () => {
 
 	return (
 		<>
+			<dialog ref={inviteModal}>
+				<h4>Invite Members</h4>
+				<QRCode value={inviteLink}></QRCode>
+				<div onClick={() => inviteModal.current.close()}>Close</div>
+			</dialog>
 			<div
 				style={{
 					borderBottom: "1px solid black",
@@ -232,6 +249,7 @@ const Room = () => {
 						justifyContent: "flex-start",
 						display: "flex",
 						width: "100%",
+						paddingLeft: "1em",
 					}}
 				>
 					<h1>{roomName}</h1>
@@ -240,6 +258,19 @@ const Room = () => {
 					className="leave-btn"
 					style={{ justifyContent: "flex-end", display: "flex", width: "100%" }}
 				>
+					<div
+						style={{
+							backgroundColor: "gray",
+							padding: "0.5em",
+							textAlign: "center",
+							borderRadius: "0.5em",
+						}}
+						onClick={() => {
+							inviteModal.current.showModal();
+						}}
+					>
+						Add members
+					</div>
 					<button
 						style={{
 							backgroundColor: "red",
@@ -266,7 +297,10 @@ const Room = () => {
 					flexDirection: "column",
 				}}
 			>
-				<form onSubmit={handleSearchChange} style={{ width: "100%" }}>
+				<form
+					onSubmit={handleSearchChange}
+					style={{ width: "100%", display: "flex", justifyContent: "center" }}
+				>
 					<input
 						type="text"
 						placeholder="Search for videos"
@@ -281,7 +315,7 @@ const Room = () => {
 						onChange={() => setSearchBar(event.target.value)}
 						autoComplete="none"
 					/>
-					<button
+					<input
 						type="submit"
 						style={{
 							width: "20%",
@@ -290,9 +324,8 @@ const Room = () => {
 							fontSize: "16px",
 							boxSizing: "border-box",
 						}}
-					>
-						Search
-					</button>
+						value="Search"
+					/>
 				</form>
 
 				<ul style={{ listStyleType: "none", width: "100%" }}>

@@ -112,14 +112,16 @@ const useAuth = () => {
 
 	const getUsername = async (userID) => {
 		console.log("UserID", userID);
-		const docRef = doc(firestore, "users", userID);
-		const docSnapshot = await getDoc(docRef);
+		if (userID) {
+			const docRef = doc(firestore, "users", userID);
+			const docSnapshot = await getDoc(docRef);
 
-		if (docSnapshot.exists()) {
-			const username = docSnapshot.data().username;
-			return username;
-		} else {
-			console.log("Not found");
+			if (docSnapshot.exists()) {
+				const username = docSnapshot.data().username;
+				return username;
+			} else {
+				console.log("Not found");
+			}
 		}
 
 		return null;
