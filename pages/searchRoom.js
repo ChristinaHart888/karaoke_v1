@@ -11,18 +11,10 @@ const SearchRoom = () => {
 	const [newRoomName, setNewRoomName] = useState("");
 	const [modalDisplay, setModalDisplay] = useState(false);
 
-	const { addMember } = useDb();
+	const { addMember, getRooms } = useDb();
 
 	useEffect(() => {
-		const getRooms = async () => {
-			try {
-				const querySnapshot = await getDocs(collection(firestore, "rooms"));
-				setRooms(querySnapshot.docs);
-			} catch (e) {
-				console.log(e);
-			}
-		};
-		getRooms();
+		getRooms(setRooms);
 		const roomId = localStorage.getItem("roomID");
 		if (roomId) {
 			window.location.href = "./room";

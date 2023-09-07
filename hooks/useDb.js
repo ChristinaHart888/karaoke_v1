@@ -1,5 +1,11 @@
 import { firestore } from "../components/firestore";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+	collection,
+	doc,
+	getDoc,
+	updateDoc,
+	getDocs,
+} from "firebase/firestore";
 
 const useDb = () => {
 	const addMember = async (userID, roomID, collectionName = "rooms") => {
@@ -61,11 +67,30 @@ const useDb = () => {
 		}
 	};
 
+	const getRooms = async (setRooms) => {
+		try {
+			const querySnapshot = await getDocs(collection(firestore, "rooms"));
+			setRooms(querySnapshot.docs);
+		} catch (e) {
+			console.error(e);
+		}
+	};
+
+	const getRoomInfo = async (roomID, collectionName = "rooms") => {
+		const docReference = doc(firestore, collectionName, roomID);
+		const docSnapshot = await getDoc(docReference);
+		const roomInfo = docSnapshot.data();
+		console.log("re", roomInfo);
+		return roomInfo;
+	};
+
 	return {
 		addMember,
 		removeMember,
 		addToQueue,
 		removeFromQueue,
+		getRooms,
+		getRoomInfo,
 	};
 };
 export default useDb;

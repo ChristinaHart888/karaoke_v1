@@ -15,11 +15,12 @@ import Popup from "../components/popup";
 
 const Login = () => {
 	const provider = new GoogleAuthProvider();
-	const { login } = useAuth();
+	const { login, guestLogin } = useAuth();
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
+	const [isDisabled, setIsDisabled] = useState(false);
 
 	useEffect(() => {
 		if (localStorage.getItem("userID") != null) {
@@ -38,6 +39,7 @@ const Login = () => {
 	}, [auth]);
 
 	const loginHandler = async () => {
+		setIsDisabled(true);
 		const result = await login(email, password);
 		if (result.error) {
 			setErrorMessage(result.error);
@@ -49,6 +51,7 @@ const Login = () => {
 			localStorage.setItem("userID", userID);
 			window.location.href = "./profile";
 		}
+		setIsDisabled(false);
 	};
 
 	const logInWithGoogleHandler = () => {
@@ -56,10 +59,17 @@ const Login = () => {
 	};
 
 	const guestButtonHandler = () => {
-		const uid = uuiv4();
-		localStorage.setItem("userID", uid);
-		localStorage.setItem("username", "guest");
-		window.location.reload();
+		setIsDisabled(true);
+		const guesthandler = guestLogin();
+		guesthandler.then((result) => {
+			setIsDisabled(false);
+			if (result.error) {
+				setErrorMessage(result.error);
+			} else if (result.userID) {
+				localStorage.setItem("userID", result.userID);
+				window.location.reload();
+			}
+		});
 	};
 
 	return (
@@ -97,6 +107,7 @@ const Login = () => {
 						onClick={loginHandler}
 						className={styles.formBtn}
 						id={styles.loginBtn}
+						disabled={isDisabled}
 					>
 						Log In
 					</button>
@@ -112,6 +123,7 @@ const Login = () => {
 						onClick={guestButtonHandler}
 						className={styles.formBtn}
 						id={styles.guestBtn}
+						disabled={isDisabled}
 					>
 						Continue as guest
 					</button>

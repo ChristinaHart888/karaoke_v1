@@ -10,7 +10,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import YouTube from "react-youtube";
 import QueueItem from "../components/queueItem";
 import useDb from "../hooks/useDb";
-import "../styles/Home.module.css";
 import MediaControl from "../components/mediaControl";
 import he from "he";
 import QRCode from "qrcode.react";
@@ -31,13 +30,13 @@ const Room = () => {
 	const [roomExists, setRoomExists] = useState(null);
 	const playerRef = useRef(null);
 	const cachedResults = useMemo(() => new Map(), []);
-	const [inviteLink, setInviteLink] = useState("");
-
+	const [inviteLink, setInviteLink] = useState();
 	const [userID, setUserID] = useState("");
 	const [roomId, setRoomId] = useState("");
 	const { removeMember, addToQueue, removeFromQueue } = useDb();
-
 	const inviteModal = useRef();
+
+	const PROD_URL = "https://karaoke-v1-git-master-christinahart888.vercel.app";
 
 	useEffect(() => {
 		const getSuggestedVideos = async () => {
@@ -76,14 +75,7 @@ const Room = () => {
 					setRoomMembers(roomDetails.members);
 					setRoomName(roomDetails.roomName);
 					setHost(roomDetails.createdBy);
-					const hostname = window.location.hostname;
-					const port = window.location.port;
-					console.log(hostname + ":" + port + "/joinRoom");
-					if (port) {
-						setInviteLink(hostname + ":" + port + "/joinRoom");
-					} else {
-						setInviteLink(hostname + "/joinRoom");
-					}
+					setInviteLink(PROD_URL + "/joinRoom?id=" + doc.id);
 				}
 			});
 		};
@@ -227,9 +219,58 @@ const Room = () => {
 
 	return (
 		<>
-			<dialog ref={inviteModal}>
-				<h4>Invite Members</h4>
-				<QRCode value={inviteLink}></QRCode>
+			<dialog
+				ref={inviteModal}
+				style={{
+					minHeight: "560px",
+					minWidth: "25em",
+					boxSizing: "border-box",
+					padding: "30px 30px 40px",
+				}}
+			>
+				<div
+					className="heading"
+					style={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "space-around",
+					}}
+				>
+					<h3 style={{ width: "100%" }}>Invite Members</h3>
+					<div
+						className={styles.cancelCross}
+						onClick={() => inviteModal.current.close()}
+					>
+						<div className={styles.cancelLine}></div>
+						<div className={styles.cancelLine}></div>
+					</div>
+				</div>
+
+				<div
+					className="qrCode"
+					style={{
+						width: "100%",
+						justifyContent: "center",
+						display: "flex",
+					}}
+				>
+					{inviteLink && <QRCode value={inviteLink}></QRCode>}
+					<div className="shareLink" style={{ marginLeft: "1.5em" }}>
+						<div className={styles.inputContainer}>
+							<input
+								value={inviteLink}
+								className={styles.inviteLinkInput}
+								readOnly
+							></input>
+							<div
+								className={styles.copyButton}
+								onClick={() => navigator.clipboard.writeText(inviteLink)}
+							>
+								Copy
+							</div>
+						</div>
+					</div>
+				</div>
 				<div onClick={() => inviteModal.current.close()}>Close</div>
 			</dialog>
 			<div
@@ -266,6 +307,7 @@ const Room = () => {
 							borderRadius: "0.5em",
 						}}
 						onClick={() => {
+							console.log(inviteLink);
 							inviteModal.current.showModal();
 						}}
 					>

@@ -9,6 +9,7 @@ import {
 	setDoc,
 	where,
 	getDoc,
+	deleteDoc,
 } from "firebase/firestore";
 import bcrypt from "bcryptjs";
 import { v4 as uuiv4 } from "uuid";
@@ -23,14 +24,25 @@ const useAuth = () => {
 
 	useEffect(() => {
 		const user = auth.currentUser;
-		setIsLoggedIn(user !== null);
 		if (user) {
 			setEmail(user.email);
 			setProfile(user.photoURL);
+			setIsLoggedIn(true);
+		} else if (localStorage.getItem("userID")) {
+			setIsLoggedIn(true);
 		}
 	}, [auth]);
 
-	const signOut = () => {
+	const signOut = async () => {
+		const currentUserID = localStorage.getItem("userID");
+		if (currentUserID) {
+			const docRef = doc(firestore, "users", currentUserID);
+			const docSnapshot = await getDoc(docRef);
+
+			if (docSnapshot.exists() && docSnapshot.data().isGuest === true) {
+				await deleteUser(currentUserID);
+			}
+		}
 		auth.signOut().then(() => {
 			localStorage.clear();
 			window.location.reload();
@@ -63,6 +75,7 @@ const useAuth = () => {
 						email: email,
 						username: username,
 						password: newPass,
+						isGuest: false,
 					};
 					await setDoc(doc(firestore, "users", userID), data);
 					console.log("UserID: ", userID);
@@ -74,6 +87,26 @@ const useAuth = () => {
 			console.log(querySnapshot.size);
 			return {
 				result: "none",
+			};
+		} catch (e) {
+			return {
+				error: e,
+			};
+		}
+	};
+
+	const guestLogin = async () => {
+		const uid = uuiv4();
+		const tag = uid.split("-")[3];
+		const guestName = "Guest#" + tag;
+		try {
+			const data = {
+				username: guestName,
+				isGuest: true,
+			};
+			await setDoc(doc(firestore, "users", uid), data);
+			return {
+				userID: uid,
 			};
 		} catch (e) {
 			return {
@@ -110,10 +143,18 @@ const useAuth = () => {
 		return data;
 	};
 
+	const deleteUser = async (userID) => {
+		const docRef = doc(firestore, "users", userID);
+		await deleteDoc(docRef);
+	};
+
 	const getUsername = async (userID) => {
-		console.log("UserID", userID);
-		if (userID) {
-			const docRef = doc(firestore, "users", userID);
+		let uid = userID;
+		if (!uid) {
+			uid = localStorage.getItem("userID");
+		}
+		if (uid) {
+			const docRef = doc(firestore, "users", uid);
 			const docSnapshot = await getDoc(docRef);
 
 			if (docSnapshot.exists()) {
@@ -123,7 +164,6 @@ const useAuth = () => {
 				console.log("Not found");
 			}
 		}
-
 		return null;
 	};
 
@@ -133,6 +173,7 @@ const useAuth = () => {
 		email,
 		profile,
 		login,
+		guestLogin,
 		signUp,
 		signOut,
 		getUsername,
