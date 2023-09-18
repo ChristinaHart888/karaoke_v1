@@ -5,13 +5,17 @@ import { firestore } from "../components/firestore";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import useDb from "../hooks/useDb";
+import useAuth from "../hooks/useAuth";
 
 const SearchRoom = () => {
 	const [rooms, setRooms] = useState();
 	const [newRoomName, setNewRoomName] = useState("");
+	const [username, setUsername] = useState("");
+	const [userID, setUserID] = useState();
 	const [modalDisplay, setModalDisplay] = useState(false);
 
 	const { addMember, getRooms } = useDb();
+	const { getUsername } = useAuth();
 
 	useEffect(() => {
 		getRooms(setRooms);
@@ -19,15 +23,21 @@ const SearchRoom = () => {
 		if (roomId) {
 			window.location.href = "./room";
 		}
+		setUserID(localStorage.getItem("userID"));
+		const uname = getUsername();
+		uname.then((name) => {
+			console.log("Name", name);
+			setUsername(name);
+		});
 	}, []);
 
 	const selectRoomHandler = async (event) => {
 		const roomId = event.currentTarget.id;
-		const userID = localStorage.getItem("userID");
 		if (userID == null) {
 			window.location.href = "./login";
 		}
-		await addMember(userID, roomId);
+
+		await addMember({ userID: userID, roomID: roomId, username: username });
 		localStorage.setItem("roomID", roomId);
 		window.location.href = "./room";
 	};
@@ -35,8 +45,6 @@ const SearchRoom = () => {
 	const createRoom = async (e) => {
 		e.preventDefault();
 		try {
-			console.log("New room name");
-			console.log(newRoomName);
 			const userID = localStorage.getItem("userID");
 			if (userID == null) {
 				window.location.href = "./login";
@@ -44,7 +52,7 @@ const SearchRoom = () => {
 			const newRoom = await addDoc(collection(firestore, "rooms"), {
 				createdBy: userID,
 				roomName: newRoomName,
-				members: [userID],
+				members: [{ userID, username }],
 				queue: [],
 			});
 			console.log("New room id: " + newRoom.id);

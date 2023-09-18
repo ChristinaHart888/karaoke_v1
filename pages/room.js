@@ -15,11 +15,12 @@ import he from "he";
 import QRCode from "qrcode.react";
 
 import styles from "../styles/room.module.css";
+import useAuth from "../hooks/useAuth";
 
 const Room = () => {
 	const [host, setHost] = useState("");
 	const [playlist, setPlaylist] = useState([]);
-	const [roomMembers, setRoomMembers] = useState([""]);
+	const [roomMembers, setRoomMembers] = useState([]);
 	const [roomName, setRoomName] = useState("Room");
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [searchBar, setSearchBar] = useState("");
@@ -33,8 +34,10 @@ const Room = () => {
 	const [inviteLink, setInviteLink] = useState();
 	const [userID, setUserID] = useState("");
 	const [roomId, setRoomId] = useState("");
+	const [username, setUsername] = useState("");
 	const { removeMember, addToQueue, removeFromQueue } = useDb();
 	const inviteModal = useRef();
+	const { getUsername } = useAuth();
 
 	const PROD_URL = "https://karaoke-v1-git-master-christinahart888.vercel.app";
 
@@ -103,7 +106,12 @@ const Room = () => {
 
 	useEffect(() => {
 		initRoom();
-		setUserID(localStorage.getItem("userID"));
+		let userID = localStorage.getItem("userID");
+		let uname = getUsername(userID);
+		uname.then((name) => {
+			setUsername(name);
+		});
+		setUserID(userID);
 		setRoomId(localStorage.getItem("roomID"));
 	}, []);
 
@@ -172,7 +180,7 @@ const Room = () => {
 		const videoId = item.id.videoId;
 		const title = item.snippet.title;
 		const thumbnail = item.snippet.thumbnails.default.url;
-		addToQueue(videoId, title, thumbnail, roomId);
+		addToQueue(videoId, title, thumbnail, roomId, userID, username);
 	};
 
 	const fetchSuggestedVideos = async (search) => {
@@ -438,6 +446,12 @@ const Room = () => {
 				</div>
 				<div className={styles.members}>
 					<h3>Members</h3>
+					<ul>
+						{roomMembers &&
+							roomMembers.map((member) => {
+								return <li>{member.username}</li>;
+							})}
+					</ul>
 				</div>
 			</div>
 		</>

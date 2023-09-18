@@ -8,14 +8,19 @@ import {
 } from "firebase/firestore";
 
 const useDb = () => {
-	const addMember = async (userID, roomID, collectionName = "rooms") => {
+	const addMember = async ({
+		userID,
+		username,
+		roomID,
+		collectionName = "rooms",
+	}) => {
 		const docReference = doc(firestore, collectionName, roomID);
 		const docSnapshot = await getDoc(docReference);
 		console.log(docSnapshot);
 		const currentMembers = docSnapshot.data().members;
 
 		if (Array.isArray(currentMembers) && !currentMembers.includes(userID)) {
-			const newMembers = [...currentMembers, userID];
+			const newMembers = [...currentMembers, { userID, username }];
 			await updateDoc(docReference, { members: newMembers });
 		}
 	};
@@ -26,8 +31,10 @@ const useDb = () => {
 		console.log(docSnapshot);
 		const currentMembers = docSnapshot.data().members;
 
-		if (Array.isArray(currentMembers) && currentMembers.includes(userID)) {
-			const newMembers = currentMembers.filter((uID) => uID != userID);
+		if (Array.isArray(currentMembers)) {
+			const newMembers = currentMembers.filter(
+				(member) => member.userID != userID
+			);
 			await updateDoc(docReference, { members: newMembers });
 		}
 	};
@@ -37,6 +44,8 @@ const useDb = () => {
 		videoTitle,
 		videoThumbnail,
 		roomID,
+		userID,
+		username,
 		collectionName = "rooms"
 	) => {
 		const docReference = doc(firestore, collectionName, roomID);
@@ -50,6 +59,8 @@ const useDb = () => {
 					videoID: videoID,
 					videoThumbnail: videoThumbnail,
 					videoTitle: videoTitle,
+					userID,
+					username,
 				},
 			];
 			await updateDoc(docReference, { queue: newQueue });

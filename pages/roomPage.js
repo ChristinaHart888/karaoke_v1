@@ -9,7 +9,7 @@ const RoomPage = () => {
 		const roomID = localStorage.getItem("roomID");
 		const userID = localStorage.getItem("userID");
 		if (!userID) {
-			window.location.href = "./profile";
+			window.location.href = "./login";
 		}
 		setRoomId(roomID);
 		console.log("RoomID:", roomID);
