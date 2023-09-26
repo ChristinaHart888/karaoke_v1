@@ -227,7 +227,7 @@ const Room = () => {
 	};
 
 	return (
-		<>
+		<div style={{ backgroundColor: "#222", paddingBottom: "1em" }}>
 			<dialog
 				ref={inviteModal}
 				style={{
@@ -290,7 +290,6 @@ const Room = () => {
 					width: "100%",
 					justifyContent: "center",
 					alignItems: "center",
-					marginBottom: "1em",
 				}}
 			>
 				<div
@@ -300,6 +299,7 @@ const Room = () => {
 						display: "flex",
 						width: "100%",
 						paddingLeft: "1em",
+						color: "#fff",
 					}}
 				>
 					<h1>{roomName}</h1>
@@ -346,6 +346,9 @@ const Room = () => {
 					display: "flex",
 					alignItems: "center",
 					flexDirection: "column",
+					backgroundColor: "#222",
+					paddingTop: "1em",
+					overflow: "hidden",
 				}}
 			>
 				<form
@@ -379,7 +382,14 @@ const Room = () => {
 					/>
 				</form>
 
-				<ul style={{ listStyleType: "none", width: "100%" }}>
+				<ul
+					style={{
+						listStyleType: "none",
+						width: "100%",
+						backgroundColor: "#333",
+						paddingX: "0.5em",
+					}}
+				>
 					{suggestedVideos &&
 						suggestedVideos[0] &&
 						suggestedVideos.map((item, index) => {
@@ -388,10 +398,22 @@ const Room = () => {
 									key={"suggested-" + index}
 									onClick={(e) => onSearchClick(e, item)}
 									id={item.id.videoId}
-									style={{ display: "flex", marginBottom: "0.1em" }}
+									style={{
+										display: "flex",
+										marginBottom: "0.1em",
+										color: "#ccc",
+									}}
 								>
 									<img src={item.snippet.thumbnails.default.url} />
-									{he.decode(item.snippet.title)}
+									<p
+										style={{
+											marginLeft: "0.5em",
+											marginTop: 0,
+											marginBottom: "0",
+										}}
+									>
+										{he.decode(item.snippet.title)}
+									</p>
 								</li>
 							);
 						})}
@@ -400,7 +422,10 @@ const Room = () => {
 			<div className={styles.dashboard}>
 				<div className={styles.vid}>
 					{host === userID && playlist[0] && (
-						<div className="video-player" style={{ width: "100%" }}>
+						<div
+							className="video-player"
+							style={{ width: "95%", marginInline: "auto", marginTop: "1em" }}
+						>
 							<YouTube
 								videoId={playlist[0].videoID}
 								opts={opts}
@@ -455,7 +480,7 @@ const Room = () => {
 					</ul>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 
