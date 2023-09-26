@@ -222,6 +222,7 @@ const Room = () => {
 		playerVars: {
 			autoplay: 1,
 			playsinline: 1,
+			controls: 0,
 		},
 	};
 

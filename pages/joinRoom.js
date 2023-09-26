@@ -49,7 +49,12 @@ const JoinRoom = () => {
 							<button>Continue as Guest</button>
 						</div>
 					)}
-					{room && isLoggedIn && <div>Log in as {username}</div>}
+					{room && isLoggedIn && (
+						<div>
+							<button>Log in as {username}</button>
+							<button>Log in with another account</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</Layout>
