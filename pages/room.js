@@ -462,7 +462,12 @@ const Room = () => {
 							{playlist.map((video, index) => {
 								return (
 									<>
-										<QueueItem video={video} key={localStorageAPIKey} />
+										<QueueItem
+											video={video}
+											key={localStorageAPIKey}
+											index={index}
+											roomID={roomId}
+										/>
 										{index == 0 && <h4>Up Next</h4>}
 									</>
 								);
