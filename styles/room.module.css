@@ -6,7 +6,8 @@
 .vid {
 	flex: 3;
 	background-color: #333;
-	margin-inline: 0.5em;
+	margin-inline: 1em;
+	margin-inline-end: 0.5em;
 	padding: 0.5em;
 	color: #ccc;
 	/* Additional styling */
@@ -24,6 +25,12 @@
 @media screen and (max-width: 768px) {
 	.dashboard {
 		flex-direction: column;
+	}
+	.members {
+		margin-inline: 1em;
+	}
+	.vid {
+		margin-inline-end: 1em;
 	}
 }
 

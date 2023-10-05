@@ -53,6 +53,8 @@ const SearchRoom = () => {
 				createdBy: userID,
 				roomName: newRoomName,
 				members: [{ userID, username }],
+				doneMembers: [],
+				takeTurns: false,
 				queue: [],
 			});
 			console.log("New room id: " + newRoom.id);

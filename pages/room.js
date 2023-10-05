@@ -35,7 +35,17 @@ const Room = () => {
 	const [userID, setUserID] = useState("");
 	const [roomId, setRoomId] = useState("");
 	const [username, setUsername] = useState("");
-	const { removeMember, addToQueue, removeFromQueue } = useDb();
+	const [takeTurns, setTakeTurns] = useState(false);
+	const [currentMember, setCurrentMember] = useState();
+	const {
+		removeMember,
+		addToQueue,
+		removeFromQueue,
+		pushSong,
+		addDoneMember,
+		clearDoneMember,
+		getNextMembers,
+	} = useDb();
 	const inviteModal = useRef();
 	const { getUsername } = useAuth();
 
@@ -60,7 +70,6 @@ const Room = () => {
 	const initRoom = async () => {
 		let apiKey = localStorage.getItem("apiKey");
 		if (apiKey) {
-			console.log("apiKey:", apiKey);
 			setLocalStorageAPIKey(apiKey);
 		}
 
@@ -91,7 +100,6 @@ const Room = () => {
 				if (docSnapshot.exists()) {
 					const data = docSnapshot.data();
 					if (data) {
-						console.log("Room Data:", data);
 						setRoomMembers(data.members);
 						setPlaylist(data.queue);
 					}
@@ -155,8 +163,19 @@ const Room = () => {
 		playerRef.current.internalPlayer.seekTo(0);
 	};
 
-	const onPlay = () => {
-		console.log("Playing");
+	const onPlay = async () => {
+		let currentUserID = playlist[0].userID;
+		// takeTurns &&
+		// 	!roomMembers.find(member => member.userID === currentUserID) &&
+		// 	(await addDoneMember(roomId, currentUserID));
+		if (takeTurns) {
+			let currentMember = roomMembers.find(
+				(member) => member.userID === currentUserID
+			);
+			console.log("Adding ", currentMember.username, " to done");
+			currentMember?.done != true && addDoneMember(roomId, currentUserID);
+		}
+
 		setIsPlaying(true);
 		setIsEnded(false);
 	};
@@ -167,12 +186,63 @@ const Room = () => {
 	};
 
 	const onEnd = async (event) => {
-		removeFromQueue(0, roomId);
-		console.log("event:", event);
-		if (playlist[0] && event.target.className != "skip") {
-			event.target.loadVideoById(playlist[0]);
-		} else {
-			setIsEnded(true);
+		await removeFromQueue(0, roomId).then(async (currentQueue) => {
+			if (takeTurns) {
+				await handleNextTurn(currentQueue).then(() => {
+					if (playlist[0] && event.target.className != "skip") {
+						event.target.loadVideoById(playlist[0]);
+					} else {
+						setIsEnded(true);
+					}
+				});
+			} else {
+				if (playlist[0] && event.target.className != "skip") {
+					event.target.loadVideoById(playlist[0]);
+				} else {
+					setIsEnded(true);
+				}
+			}
+		});
+	};
+
+	const handleNextTurn = async (playlist) => {
+		if (takeTurns) {
+			let foundNextUser = false;
+			while (!foundNextUser && playlist.length > 1) {
+				//Find the next user
+				const nextMembers = await getNextMembers(roomId);
+				const nextMember = nextMembers[0];
+				console.log("NextMember:", nextMember);
+				console.log("roomMembers:", roomMembers);
+				if (nextMember === undefined) {
+					//If All members are done
+					let result = await clearDoneMember(roomId);
+					console.log("Cleared done members", result);
+					continue;
+				} else {
+					await addDoneMember(roomId, nextMember.userID).then(() =>
+						console.log("Added " + nextMember.username)
+					);
+					//Check if the next users has already selected a song
+					let nextSongIndex = playlist.findIndex(
+						(song) => song.userID === nextMember.userID
+					);
+					console.log("next song index:", nextSongIndex);
+					console.log("playlist:", playlist);
+					if (nextSongIndex < 0) {
+						//If next user does not have a song in the queue
+						continue;
+					} else if (nextSongIndex === 0) {
+						//If the next song is alr the users'
+						foundNextUser = true;
+					} else {
+						await pushSong({ roomID: roomId, index: nextSongIndex }).then(() =>
+							console.log("Pushed song")
+						);
+						foundNextUser = true;
+					}
+				}
+			}
 		}
 	};
 
@@ -197,12 +267,10 @@ const Room = () => {
 	const handleSearchChange = (event) => {
 		event.preventDefault();
 		setQuery(searchBar);
-		console.log(suggestedVideos);
 	};
 
 	const onSearchClick = (event, item) => {
 		const videoId = event.currentTarget.id;
-		console.log("Item: ", item);
 		addVideo(item);
 		setQuery("");
 		setSearchBar("");
@@ -228,60 +296,6 @@ const Room = () => {
 
 	return (
 		<div style={{ backgroundColor: "#222", paddingBottom: "1em" }}>
-			<dialog
-				ref={inviteModal}
-				style={{
-					minHeight: "560px",
-					minWidth: "25em",
-					boxSizing: "border-box",
-					padding: "30px 30px 40px",
-				}}
-			>
-				<div
-					className="heading"
-					style={{
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "space-around",
-					}}
-				>
-					<h3 style={{ width: "100%" }}>Invite Members</h3>
-					<div
-						className={styles.cancelCross}
-						onClick={() => inviteModal.current.close()}
-					>
-						<div className={styles.cancelLine}></div>
-						<div className={styles.cancelLine}></div>
-					</div>
-				</div>
-
-				<div
-					className="qrCode"
-					style={{
-						width: "100%",
-						justifyContent: "center",
-						display: "flex",
-					}}
-				>
-					{inviteLink && <QRCode value={inviteLink}></QRCode>}
-					<div className="shareLink" style={{ marginLeft: "1.5em" }}>
-						<div className={styles.inputContainer}>
-							<input
-								value={inviteLink}
-								className={styles.inviteLinkInput}
-								readOnly
-							></input>
-							<div
-								className={styles.copyButton}
-								onClick={() => navigator.clipboard.writeText(inviteLink)}
-							>
-								Copy
-							</div>
-						</div>
-					</div>
-				</div>
-				<div onClick={() => inviteModal.current.close()}>Close</div>
-			</dialog>
 			<div
 				style={{
 					borderBottom: "1px solid black",
@@ -308,24 +322,10 @@ const Room = () => {
 					className="leave-btn"
 					style={{ justifyContent: "flex-end", display: "flex", width: "100%" }}
 				>
-					<div
-						style={{
-							backgroundColor: "gray",
-							padding: "0.5em",
-							textAlign: "center",
-							borderRadius: "0.5em",
-						}}
-						onClick={() => {
-							console.log(inviteLink);
-							inviteModal.current.showModal();
-						}}
-					>
-						Add members
-					</div>
 					<button
 						style={{
 							backgroundColor: "red",
-							padding: "10px",
+							paddingInline: "10px",
 							height: "3em",
 							color: "white",
 							border: "1px solid white",
@@ -457,11 +457,36 @@ const Room = () => {
 						</div>
 					)}
 					<div className="song-list">
-						<h3>Now Playing</h3>
+						<div
+							className="memberHeader"
+							style={{ display: "flex", alignItems: "center" }}
+						>
+							<h3>Now Playing</h3>
+							{host === userID && (
+								<button
+									style={{
+										height: "2em",
+										marginRight: "1em",
+										marginLeft: "auto",
+										backgroundColor: takeTurns ? "green" : "red",
+										fontWeight: "bold",
+										color: "white",
+										paddingInline: "1em",
+										borderRadius: "10px",
+									}}
+									onClick={() => {
+										setTakeTurns((takeTurns) => !takeTurns);
+									}}
+								>
+									Take turns
+								</button>
+							)}
+						</div>
+
 						<div className="queue" style={{ display: "grid" }}>
 							{playlist.map((video, index) => {
 								return (
-									<>
+									<div key={index}>
 										<QueueItem
 											video={video}
 											key={localStorageAPIKey}
@@ -469,7 +494,7 @@ const Room = () => {
 											roomID={roomId}
 										/>
 										{index == 0 && <h4>Up Next</h4>}
-									</>
+									</div>
 								);
 							})}
 						</div>
@@ -479,10 +504,44 @@ const Room = () => {
 					<h3>Members</h3>
 					<ul>
 						{roomMembers &&
-							roomMembers.map((member) => {
-								return <li>{member.username}</li>;
+							roomMembers.map((member, index) => {
+								return (
+									<li
+										key={index}
+										style={{ color: member.done ? "white" : "green" }}
+									>
+										{member.username}
+									</li>
+								);
 							})}
 					</ul>
+					<h3>Share Room</h3>
+					<div
+						className="qrCode"
+						style={{
+							width: "100%",
+							justifyContent: "center",
+							display: "flex",
+						}}
+					>
+						{inviteLink && <QRCode value={inviteLink}></QRCode>}
+						<div className="shareLink">
+							<div className={styles.inputContainer}>
+								<input
+									value={inviteLink}
+									className={styles.inviteLinkInput}
+									style={{ marginInline: "0.5em" }}
+									readOnly
+								></input>
+								<div
+									className={styles.copyButton}
+									onClick={() => navigator.clipboard.writeText(inviteLink)}
+								>
+									Copy
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
