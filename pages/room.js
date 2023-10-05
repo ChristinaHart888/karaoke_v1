@@ -188,21 +188,19 @@ const Room = () => {
 	const onEnd = async (event) => {
 		await removeFromQueue(0, roomId).then(async (currentQueue) => {
 			if (takeTurns) {
-				await handleNextTurn(currentQueue).then(() => {
-					if (playlist[0] && event.target.className != "skip") {
-						event.target.loadVideoById(playlist[0]);
-					} else {
-						setIsEnded(true);
-					}
-				});
+				await handleNextTurn(currentQueue).then(() => playNextSong(event));
 			} else {
-				if (playlist[0] && event.target.className != "skip") {
-					event.target.loadVideoById(playlist[0]);
-				} else {
-					setIsEnded(true);
-				}
+				playNextSong(event);
 			}
 		});
+	};
+
+	const playNextSong = (event) => {
+		if (playlist[0] && event.target.className != "skip") {
+			event.target.loadVideoById(playlist[0]);
+		} else {
+			setIsEnded(true);
+		}
 	};
 
 	const handleNextTurn = async (playlist) => {
