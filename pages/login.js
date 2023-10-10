@@ -48,7 +48,9 @@ const Login = () => {
 			// }, 5000)
 		} else {
 			const userID = result.userID;
+			const role = result.role;
 			localStorage.setItem("userID", userID);
+			localStorage.setItem("role", role);
 			window.location.href = "./profile";
 		}
 		setIsDisabled(false);

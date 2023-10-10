@@ -47,7 +47,7 @@ const Room = () => {
 		getNextMembers,
 	} = useDb();
 	const inviteModal = useRef();
-	const { getUsername } = useAuth();
+	const { getUsername, isValidAccount } = useAuth();
 
 	const PROD_URL = "https://karaoke-v1-git-master-christinahart888.vercel.app";
 
@@ -115,6 +115,12 @@ const Room = () => {
 	useEffect(() => {
 		initRoom();
 		let userID = localStorage.getItem("userID");
+		const isValid = isValidAccount(userID);
+		if (!isValid) {
+			alert("Account invalid! Please sign up for a new account!");
+			leaveRoomHandler();
+			window.location.href = "/login";
+		}
 		let uname = getUsername(userID);
 		uname.then((name) => {
 			setUsername(name);

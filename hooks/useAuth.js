@@ -134,8 +134,11 @@ const useAuth = () => {
 				const userData = doc.data();
 				const passwordHash = userData.password;
 				const userID = doc.id;
+				const role = userData.isAdmin ? "admin" : "user";
 				const result = await bcrypt.compare(password, passwordHash);
-				data = result ? { userID: userID } : { error: "Password is incorrect" };
+				data = result
+					? { userID: userID, role: role }
+					: { error: "Password is incorrect" };
 				console.log("data", data);
 			})
 		);
@@ -167,6 +170,22 @@ const useAuth = () => {
 		return null;
 	};
 
+	const isValidAccount = async (userID) => {
+		const userRef = doc(firestore, "users", userID);
+		const docSnapshot = await getDoc(userRef);
+		const userData = docSnapshot.data();
+		return userData === undefined;
+	};
+
+	const isAdmin = async (userID) => {
+		const userRef = doc(firestore, "users", userID);
+		const docSnapshot = await getDoc(userRef);
+		const userData = docSnapshot.data();
+
+		if (userData) {
+		}
+	};
+
 	return {
 		isLoggedIn,
 		setIsLoggedIn,
@@ -177,6 +196,8 @@ const useAuth = () => {
 		signUp,
 		signOut,
 		getUsername,
+		isValidAccount,
+		isAdmin,
 	};
 };
 

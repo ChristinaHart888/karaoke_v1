@@ -80,7 +80,7 @@ const useDb = () => {
 			currentQueue.length > index
 		) {
 			const song = currentQueue.splice(index, 1)[0];
-			currentQueue.unshift(song);
+			currentQueue.splice(1, 0, song);
 			console.log("useDB pushed");
 			await updateDoc(docReference, { queue: currentQueue });
 		} else {

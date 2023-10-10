@@ -9,7 +9,7 @@ const QueueItem = ({ video, key, index, roomID }) => {
 	const [username, setUsername] = useState(null);
 	const [userID, setuserID] = useState(null);
 
-	const { removeFromQueue } = useDb();
+	const { removeFromQueue, pushSong } = useDb();
 
 	useEffect(() => {
 		const fetchData = () => {
@@ -68,34 +68,54 @@ const QueueItem = ({ video, key, index, roomID }) => {
 					>
 						{username}
 					</small>
-					{localStorage.getItem("userID") === userID && index != 0 && (
-						<div
-							style={{
-								width: "100%",
-								textAlign: "end",
-								paddingRight: "1em",
-								justifyContent: "end",
-								display: "flex",
-							}}
-						>
+					{(localStorage.getItem("userID") === userID ||
+						localStorage.getItem("role") === "admin") &&
+						index != 0 && (
 							<div
-								className="logo"
 								style={{
-									display: "inline-block",
-									marginBottom: "auto",
-									marginTop: "auto",
-									backgroundColor: "#222",
-									padding: "5px",
-									borderRadius: "100VMAX",
-								}}
-								onClick={() => {
-									removeFromQueue(index, roomID);
+									width: "100%",
+									textAlign: "end",
+									paddingRight: "1em",
+									justifyContent: "end",
+									display: "flex",
 								}}
 							>
-								🗑️
+								{localStorage.getItem("role") === "admin" && (
+									<div
+										className="logo"
+										style={{
+											display: "inline-block",
+											marginBottom: "auto",
+											marginTop: "auto",
+											backgroundColor: "#222",
+											padding: "5px",
+											borderRadius: "100VMAX",
+										}}
+										onClick={() => {
+											pushSong({ roomID: roomID, index: index });
+										}}
+									>
+										🔝
+									</div>
+								)}
+								<div
+									className="logo"
+									style={{
+										display: "inline-block",
+										marginBottom: "auto",
+										marginTop: "auto",
+										backgroundColor: "#222",
+										padding: "5px",
+										borderRadius: "100VMAX",
+									}}
+									onClick={() => {
+										removeFromQueue(index, roomID);
+									}}
+								>
+									🗑️
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 				</div>
 			</div>
 		</div>
