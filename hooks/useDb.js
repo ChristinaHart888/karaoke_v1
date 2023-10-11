@@ -21,7 +21,10 @@ const useDb = () => {
 		console.log(docSnapshot);
 		const currentMembers = docSnapshot.data().members;
 
-		if (Array.isArray(currentMembers) && !currentMembers.includes(userID)) {
+		if (
+			Array.isArray(currentMembers) &&
+			currentMembers.every((member) => member.userID != userID)
+		) {
 			const newMembers = [...currentMembers, { userID, username }];
 			await updateDoc(docReference, { members: newMembers });
 		}
