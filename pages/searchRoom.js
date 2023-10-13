@@ -74,21 +74,6 @@ const SearchRoom = () => {
 		setModalDisplay(false);
 	};
 
-	const NewRoomForm = () => {
-		return (
-			<form onSubmit={createRoom}>
-				<label>Room Name</label>
-				<input
-					type="text"
-					placeholder="Room Name"
-					onChange={(e) => setNewRoomName(e.target.value)}
-					value={newRoomName}
-				></input>
-				<button type="submit">Submit</button>
-			</form>
-		);
-	};
-
 	return (
 		<Layout>
 			<h1>Search Room</h1>

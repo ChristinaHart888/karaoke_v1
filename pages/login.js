@@ -16,11 +16,16 @@ import Popup from "../components/popup";
 const Login = () => {
 	const provider = new GoogleAuthProvider();
 	const { login, guestLogin } = useAuth();
-
+	const [roomID, setRoomID] = useState(undefined);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
 	const [isDisabled, setIsDisabled] = useState(false);
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		setRoomID(params.get("redir"));
+	}, []);
 
 	useEffect(() => {
 		if (localStorage.getItem("userID") != null) {
@@ -51,7 +56,7 @@ const Login = () => {
 			const role = result.role;
 			localStorage.setItem("userID", userID);
 			localStorage.setItem("role", role);
-			window.location.href = "./profile";
+			window.location.href = roomID ? `./joinRoom?id=${roomID}` : "./profile";
 		}
 		setIsDisabled(false);
 	};
@@ -69,7 +74,7 @@ const Login = () => {
 				setErrorMessage(result.error);
 			} else if (result.userID) {
 				localStorage.setItem("userID", result.userID);
-				window.location.reload();
+				window.location.href = roomID ? `./joinRoom?id=${roomID}` : "./profile";
 			}
 		});
 	};

@@ -52,15 +52,15 @@
 	color: #fff;
 }
 
+.container {
+	background-image: url("../images/aurora-kirkjufell-iceland_4x3.avif");
+	background-size: cover;
+	height: calc(100vh - 35px);
+	overflow: hidden;
+}
+
 /* Media query for larger screens */
 @media screen and (min-width: 768px) {
-	.container {
-		background-image: url("../images/aurora-kirkjufell-iceland_4x3.avif");
-		background-size: cover;
-		height: calc(100vh - 35px);
-		overflow: hidden;
-	}
-
 	.loginBox {
 		width: 450px;
 	}
@@ -68,10 +68,6 @@
 
 /* Media query for smaller screens */
 @media screen and (max-width: 767px) {
-	.container {
-		background-size: cover;
-	}
-
 	.loginBox {
 		width: 90%;
 	}
