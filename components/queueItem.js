@@ -92,7 +92,7 @@ const QueueItem = ({ video, key, index, roomID }) => {
 											borderRadius: "100VMAX",
 										}}
 										onClick={() => {
-											pushSong({ roomID: roomID, index: index });
+											pushSong({ roomID: roomID, index: index, newIndex: 1 });
 										}}
 									>
 										🔝

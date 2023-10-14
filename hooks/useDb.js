@@ -72,7 +72,12 @@ const useDb = () => {
 		}
 	};
 
-	const pushSong = async ({ roomID, index, collectionName = "rooms" }) => {
+	const pushSong = async ({
+		roomID,
+		index,
+		collectionName = "rooms",
+		newIndex = 0,
+	}) => {
 		const docReference = doc(firestore, collectionName, roomID);
 		const docSnapshot = await getDoc(docReference);
 		const currentQueue = docSnapshot.data().queue;
@@ -83,7 +88,7 @@ const useDb = () => {
 			currentQueue.length > index
 		) {
 			const song = currentQueue.splice(index, 1)[0];
-			currentQueue.splice(1, 0, song);
+			currentQueue.splice(newIndex, 0, song);
 			console.log("useDB pushed");
 			await updateDoc(docReference, { queue: currentQueue });
 		} else {
