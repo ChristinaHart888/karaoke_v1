@@ -240,9 +240,11 @@ const Room = () => {
 						//If the next song is alr the users'
 						foundNextUser = true;
 					} else {
-						await pushSong({ roomID: roomId, index: nextSongIndex }).then(() =>
-							console.log("Pushed song")
-						);
+						await pushSong({
+							roomID: roomId,
+							index: nextSongIndex,
+							newIndex: 0,
+						}).then(() => console.log("Pushed song"));
 						foundNextUser = true;
 					}
 				}
