@@ -1,6 +1,7 @@
 .dashboard {
 	display: flex;
 	background-color: #222;
+	flex-direction: row;
 }
 
 .vid {

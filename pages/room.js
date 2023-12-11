@@ -490,7 +490,7 @@ const Room = () => {
 						</div>
 
 						<div className="queue" style={{ display: "grid" }}>
-							{playlist.map((video, index) => {
+							{playlist?.map((video, index) => {
 								return (
 									<div key={index}>
 										<QueueItem

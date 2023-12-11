@@ -64,7 +64,13 @@ const QueueItem = ({ video, key, index, roomID }) => {
 					}}
 				>
 					<small
-						style={{ width: "100%", marginTop: "auto", marginBottom: "auto" }}
+						style={{
+							width: "100%",
+							marginTop: "auto",
+							marginBottom: "auto",
+							color:
+								localStorage.getItem("userID") === userID ? "green" : "white",
+						}}
 					>
 						{username}
 					</small>
