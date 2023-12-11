@@ -527,7 +527,7 @@ const Room = () => {
 						style={{
 							width: "100%",
 							justifyContent: "center",
-							display: "flex",
+							display: "grid",
 						}}
 					>
 						{inviteLink && <QRCode value={inviteLink}></QRCode>}
@@ -536,7 +536,6 @@ const Room = () => {
 								<input
 									value={inviteLink}
 									className={styles.inviteLinkInput}
-									style={{ marginInline: "0.5em" }}
 									readOnly
 								></input>
 								<div
