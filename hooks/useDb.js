@@ -174,6 +174,20 @@ const useDb = () => {
 		}
 	};
 
+	const setRoomTakeTurns = async (
+		roomID,
+		newTakeTurns,
+		collectionName = "rooms"
+	) => {
+		const docReference = doc(firestore, collectionName, roomID);
+		const docSnapshot = await getDoc(docReference);
+		const takeTurns = docSnapshot.data().takeTurns;
+
+		if (newTakeTurns !== takeTurns) {
+			await updateDoc(docReference, { takeTurns: newTakeTurns });
+		}
+	};
+
 	return {
 		addMember,
 		removeMember,
@@ -185,6 +199,7 @@ const useDb = () => {
 		addDoneMember,
 		clearDoneMember,
 		getNextMembers,
+		setRoomTakeTurns,
 	};
 };
 export default useDb;

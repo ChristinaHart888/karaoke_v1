@@ -45,6 +45,7 @@ const Room = () => {
 		addDoneMember,
 		clearDoneMember,
 		getNextMembers,
+		setRoomTakeTurns,
 	} = useDb();
 	const inviteModal = useRef();
 	const { getUsername, isValidAccount } = useAuth();
@@ -102,6 +103,7 @@ const Room = () => {
 					if (data) {
 						setRoomMembers(data.members);
 						setPlaylist(data.queue);
+						setTakeTurns(data.takeTurns);
 					}
 				}
 			});
@@ -290,6 +292,12 @@ const Room = () => {
 		}
 		localStorage.removeItem("roomID");
 		window.location.reload();
+	};
+
+	const handleToggleTakeTurns = async () => {
+		let newTakeTurns = !takeTurns;
+		setTakeTurns(newTakeTurns);
+		await setRoomTakeTurns(roomId, newTakeTurns);
 	};
 
 	const opts = {
@@ -481,7 +489,7 @@ const Room = () => {
 										borderRadius: "10px",
 									}}
 									onClick={() => {
-										setTakeTurns((takeTurns) => !takeTurns);
+										handleToggleTakeTurns();
 									}}
 								>
 									Take turns
@@ -507,7 +515,11 @@ const Room = () => {
 					</div>
 				</div>
 				<div className={styles.members}>
-					<h3>Members</h3>
+					<div className="heading">
+						<h3>Members</h3>
+						<h4>Take Turns: {takeTurns ? "On" : "Off"}</h4>
+					</div>
+
 					<ul>
 						{roomMembers &&
 							roomMembers.map((member, index) => {
@@ -526,7 +538,7 @@ const Room = () => {
 						className="qrCode"
 						style={{
 							width: "100%",
-							justifyContent: "center",
+							justifyContent: "left",
 							display: "grid",
 						}}
 					>
