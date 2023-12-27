@@ -3,7 +3,7 @@ import React from "react";
 import he from "he";
 import useDb from "../hooks/useDb";
 
-const QueueItem = ({ video, key, index, roomID }) => {
+const QueueItem = ({ video, index, roomID }) => {
 	const [title, setTitle] = useState(null);
 	const [thumbnail, setThumbnail] = useState(null);
 	const [username, setUsername] = useState(null);

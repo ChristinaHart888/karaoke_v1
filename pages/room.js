@@ -497,20 +497,41 @@ const Room = () => {
 							)}
 						</div>
 
-						<div className="queue" style={{ display: "grid" }}>
-							{playlist?.map((video, index) => {
+						<div className="queue" style={{ display: "grid", height: "100vh" }}>
+							{playlist?.length > 0 && (
+								<QueueItem
+									video={playlist[0]}
+									index={0}
+									roomID={roomId}
+								></QueueItem>
+							)}
+							{playlist?.length > 1 && <h4>Up Next</h4>}
+							<div style={{ overflowY: "auto" }}>
+								{playlist?.length > 1 &&
+									playlist
+										.slice(1)
+										.map((video, index) => (
+											<QueueItem
+												video={video}
+												index={index}
+												roomID={roomId}
+											></QueueItem>
+										))}
+							</div>
+
+							{/* {playlist?.map((video, index) => {
 								return (
-									<div key={index}>
+									<>
 										<QueueItem
 											video={video}
-											key={localStorageAPIKey}
+											key={index}
 											index={index}
 											roomID={roomId}
 										/>
 										{index == 0 && <h4>Up Next</h4>}
-									</div>
+									</>
 								);
-							})}
+							})} */}
 						</div>
 					</div>
 				</div>
