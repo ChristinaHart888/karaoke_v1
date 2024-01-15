@@ -513,7 +513,7 @@ const Room = () => {
 										.map((video, index) => (
 											<QueueItem
 												video={video}
-												index={index}
+												index={index + 1}
 												roomID={roomId}
 											></QueueItem>
 										))}
