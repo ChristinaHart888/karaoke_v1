@@ -1,7 +1,7 @@
 import * as firebase from "firebase/app";
 import "firebase/compat/firestore";
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 
@@ -17,6 +17,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const firestoreInstance = initializeFirestore(app, { experimentalForceLongPolling: true, useFetchStreams: false })
 const db = getFirestore(app);
 const authen = getAuth(app);
 
